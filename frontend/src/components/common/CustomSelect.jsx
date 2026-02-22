@@ -59,7 +59,7 @@ const CustomSelect = ({ value, onChange, options = [], className = '', required,
                 onClick={() => pick(opt.value)}
                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                   String(opt.value) === String(value)
-                    ? 'bg-orange-500/20 text-orange-300 font-semibold'
+                    ? 'bg-indigo-500/15 text-indigo-400 font-semibold'
                     : 'text-slate-300 hover:bg-white/5 hover:text-white'
                 }`}
               >

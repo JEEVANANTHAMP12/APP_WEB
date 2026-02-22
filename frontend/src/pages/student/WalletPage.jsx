@@ -36,7 +36,7 @@ const WalletPage = () => {
         description: `Add ₹${amt} to wallet`,
         order_id: rzp.razorpay_order_id,
         prefill: { name: user.name, email: user.email },
-        theme: { color: '#f97316' },
+        theme: { color: '#6366f1' },
         handler: async (response) => {
           try {
             const { data: vData } = await paymentAPI.verifyWallet({ ...response, amount: amt });
@@ -59,7 +59,7 @@ const WalletPage = () => {
       </div>
 
       {/* Balance Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 p-6 shadow-2xl shadow-orange-500/30">
+      <div className="relative overflow-hidden rounded-2xl p-6 shadow-2xl shadow-indigo-500/30" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed, #a855f7)' }}>
         <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/10" />
         <div className="absolute -right-2 bottom-2 w-20 h-20 rounded-full bg-white/5" />
         <p className="text-white/70 text-sm font-medium mb-1">Available Balance</p>
@@ -69,7 +69,7 @@ const WalletPage = () => {
 
       {/* Add Money */}
       <div className="card space-y-4">
-        <h3 className="font-bold text-white">Add Money</h3>
+        <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>Add Money</h3>
 
         {/* Quick amounts */}
         <div className="flex flex-wrap gap-2">
@@ -79,9 +79,10 @@ const WalletPage = () => {
               onClick={() => setAmount(String(a))}
               className={`px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
                 amount === String(a)
-                  ? 'border-orange-500 bg-orange-500/20 text-orange-300'
-                  : 'border-white/10 text-slate-400 hover:border-white/30 hover:text-white'
+                  ? 'border-indigo-500 bg-indigo-500/15 text-indigo-400'
+                  : 'hover:border-indigo-400/40'
               }`}
+              style={amount !== String(a) ? { borderColor: 'var(--border-color)', color: 'var(--text-secondary)' } : {}}
             >
               ₹{a}
             </button>
@@ -102,7 +103,7 @@ const WalletPage = () => {
               className="input pl-8"
             />
           </div>
-          <p className="text-xs text-slate-500 mt-1.5">Minimum ₹10 · Secure payment via Razorpay</p>
+          <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>Minimum ₹10 · Secure payment via Razorpay</p>
         </div>
 
         <button
@@ -116,17 +117,17 @@ const WalletPage = () => {
 
       {/* Info */}
       <div className="card space-y-3">
-        <h3 className="font-bold text-white text-sm">How it works</h3>
+        <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>How it works</h3>
         {[
           ['Add money', 'Top up using UPI, card, or net banking'],
           ['Use at checkout', 'Pay instantly without re-entering payment details'],
           ['Safe & secure', 'All transactions are encrypted and secure'],
         ].map(([title, desc]) => (
           <div key={title} className="flex items-start gap-3">
-            <span className="w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs mt-0.5">✓</span>
+            <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs mt-0.5">✓</span>
             <div>
-              <p className="text-sm font-medium text-white">{title}</p>
-              <p className="text-xs text-slate-400">{desc}</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{title}</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{desc}</p>
             </div>
           </div>
         ))}

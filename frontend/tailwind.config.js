@@ -1,10 +1,22 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class', // Enable dark mode with class strategy
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        brand: {
+          50:  '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1',
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
+        },
         primary: {
           50: '#fff7ed',
           100: '#ffedd5',
@@ -26,7 +38,16 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        sans:    ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'sans-serif'],
+      },
+      boxShadow: {
+        'brand':    '0 4px 16px rgba(99,91,255,0.15)',
+        'brand-lg': '0 20px 50px rgba(99,91,255,0.2)',
+        'glow':     '0 0 30px rgba(99,91,255,0.3)',
+      },
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)',
       },
       transitionDuration: {
         '250': '250ms',

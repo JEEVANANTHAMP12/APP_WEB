@@ -8,7 +8,7 @@ const FORM_ROLES = ['student', 'owner', 'staff', 'admin'];
 
 const ROLE_COLORS = {
   student: 'bg-blue-500/20 text-blue-400',
-  owner: 'bg-orange-500/20 text-orange-400',
+  owner: 'bg-indigo-500/15 text-indigo-400',
   staff: 'bg-emerald-500/20 text-emerald-400',
   admin: 'bg-violet-500/20 text-violet-400',
 };
@@ -148,7 +148,7 @@ const AdminUsersPage = () => {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex gap-1 bg-slate-800/60 p-1 rounded-xl border border-white/5">
+        <div className="flex gap-1 p-1 rounded-xl border" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-color)' }}>
           {ROLES.map((r) => (
             <button
               key={r}
@@ -295,7 +295,7 @@ const AdminUsersPage = () => {
               <h2 className="text-lg font-bold text-slate-100">
                 {modal === 'create' ? 'Add New User' : 'Edit User'}
               </h2>
-              <button onClick={closeModal} className="text-slate-500 hover:text-slate-200 transition-colors">
+              <button onClick={closeModal} className="btn-ghost p-1 rounded-lg transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

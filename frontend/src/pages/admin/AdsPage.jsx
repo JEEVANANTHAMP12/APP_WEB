@@ -7,7 +7,7 @@ const POSITIONS = ['home_banner', 'canteen_list', 'sidebar'];
 const EMPTY = { title: '', image: '', link: '', position: POSITIONS[0], start_date: '', end_date: '', is_active: true };
 
 const POSITION_COLORS = {
-  home_banner: 'bg-orange-500/20 text-orange-400',
+  home_banner: 'bg-indigo-500/15 text-indigo-400',
   canteen_list: 'bg-blue-500/20 text-blue-400',
   sidebar: 'bg-violet-500/20 text-violet-400',
 };

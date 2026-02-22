@@ -18,7 +18,16 @@ export const CartProvider = ({ children }) => {
   const [canteenId, setCanteenId] = useState(() => {
     try {
       const stored = localStorage.getItem(`${CART_STORAGE_KEY}_canteen`);
-      return stored ? JSON.parse(stored) : null;
+      if (stored) return JSON.parse(stored);
+      // Recover canteenId from existing cart items if missing
+      const cartStored = localStorage.getItem(CART_STORAGE_KEY);
+      if (cartStored) {
+        const cartItems = JSON.parse(cartStored);
+        if (cartItems.length > 0 && cartItems[0].canteen_id) {
+          return typeof cartItems[0].canteen_id === 'object' ? cartItems[0].canteen_id._id : cartItems[0].canteen_id;
+        }
+      }
+      return null;
     } catch {
       return null;
     }

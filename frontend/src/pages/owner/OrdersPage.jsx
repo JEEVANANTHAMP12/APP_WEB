@@ -88,9 +88,10 @@ const OrdersPage = () => {
             onClick={() => setFilter(f)}
             className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               filter === f
-                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                ? 'bg-brand-gradient text-white shadow-brand'
+                : 'hover:bg-white/10'
             }`}
+            style={filter !== f ? { background: 'var(--bg-elevated)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' } : {}}
           >
             {FILTER_LABELS[f]}
           </button>
@@ -98,10 +99,10 @@ const OrdersPage = () => {
       </div>
 
       {loading ? <Loading /> : orders.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-5xl mb-4">📭</div>
-          <p className="text-white font-medium">No orders here</p>
-          <p className="text-slate-400 text-sm mt-1">New orders will appear in real-time</p>
+        <div className="empty-state py-16">
+          <div className="empty-icon">📭</div>
+          <p className="empty-title">No orders here</p>
+          <p className="empty-desc">New orders will appear in real-time</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -110,24 +111,24 @@ const OrdersPage = () => {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-white">#{order.order_number}</span>
+                    <span className="font-bold" style={{ color: 'var(--text-primary)' }}>#{order.order_number}</span>
                     <StatusBadge status={order.order_status} />
                   </div>
-                  <p className="text-sm text-slate-300 mt-1">{order.user_id?.name}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{new Date(order.createdAt).toLocaleTimeString()}</p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{order.user_id?.name}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleTimeString()}</p>
                 </div>
-                <p className="font-bold text-white text-lg shrink-0">₹{order.total_amount}</p>
+                <p className="font-bold text-lg shrink-0" style={{ color: 'var(--text-primary)' }}>₹{order.total_amount}</p>
               </div>
 
               {/* Items preview */}
               <div className="space-y-1">
                 {order.items?.slice(0, 3).map((item, i) => (
-                  <div key={i} className="flex justify-between text-xs text-slate-400">
+                  <div key={i} className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                     <span>{item.name} × {item.quantity}</span>
                     <span>₹{item.price * item.quantity}</span>
                   </div>
                 ))}
-                {order.items?.length > 3 && <p className="text-xs text-slate-500">+{order.items.length - 3} more items</p>}
+                  {order.items?.length > 3 && <p className="text-xs" style={{ color: 'var(--text-muted)' }}>+{order.items.length - 3} more items</p>}
               </div>
 
               {order.special_instructions && (
@@ -137,7 +138,7 @@ const OrdersPage = () => {
               )}
 
               {/* Action buttons */}
-              <div className="flex gap-2 pt-1 border-t border-white/10">
+              <div className="flex gap-2 pt-1 border-t" style={{ borderColor: 'var(--border-color)' }}>
                 {STATUS_FLOW[order.order_status] && (
                   <button
                     onClick={() => handleStatusUpdate(order._id, STATUS_FLOW[order.order_status].next)}

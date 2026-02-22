@@ -102,11 +102,10 @@ const createAdminUser = asyncHandler(async (req, res) => {
   if (!name || !email || !password) return errorResponse(res, 400, 'Name, email and password are required');
   const exists = await User.findOne({ email: email.toLowerCase() });
   if (exists) return errorResponse(res, 400, 'Email already registered');
-  const hashed = await require('bcryptjs').hash(password, 10);
   const user = await User.create({
     name,
     email: email.toLowerCase(),
-    password: hashed,
+    password,
     role: role || 'student',
     phone: phone || '',
     ...(university_id && { university_id }),

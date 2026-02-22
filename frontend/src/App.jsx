@@ -36,6 +36,11 @@ import EarningsPage from './pages/owner/EarningsPage';
 import StaffPage from './pages/owner/StaffPage';
 import QRVerifyPage from './pages/owner/QRVerifyPage';
 
+// Staff Pages
+import StaffLayout from './layouts/StaffLayout';
+import StaffMenuPage from './pages/staff/MenuPage';
+import StaffQRVerifyPage from './pages/staff/QRVerifyPage';
+
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboard from './pages/admin/DashboardPage';
@@ -75,11 +80,11 @@ const AppRoutes = () => {
           <Route path="wallet" element={<WalletPage />} />
         </Route>
 
-        {/* Owner / Staff */}
+        {/* Owner */}
         <Route
           path="/owner"
           element={
-            <PrivateRoute roles={['owner', 'staff']}>
+            <PrivateRoute roles={['owner']}>
               <OwnerLayout />
             </PrivateRoute>
           }
@@ -91,6 +96,21 @@ const AppRoutes = () => {
           <Route path="earnings" element={<EarningsPage />} />
           <Route path="staff" element={<StaffPage />} />
           <Route path="qr-verify" element={<QRVerifyPage />} />
+        </Route>
+
+        {/* Staff */}
+        <Route
+          path="/staff"
+          element={
+            <PrivateRoute roles={['staff']}>
+              <StaffLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="orders" replace />} />
+          <Route path="orders" element={<OwnerOrdersPage />} />
+          <Route path="qr-verify" element={<StaffQRVerifyPage />} />
+          <Route path="menu" element={<StaffMenuPage />} />
         </Route>
 
         {/* Admin */}
@@ -112,7 +132,8 @@ const AppRoutes = () => {
         {/* Root path - redirect based on user role */}
         <Route path="/" element={user ? (
           user.role === 'admin' ? <Navigate to="/admin/dashboard" replace /> :
-          ['owner', 'staff'].includes(user.role) ? <Navigate to="/owner/dashboard" replace /> :
+          user.role === 'owner' ? <Navigate to="/owner/dashboard" replace /> :
+          user.role === 'staff' ? <Navigate to="/staff/orders" replace /> :
           <Navigate to="/student/home" replace />
         ) : (
           <Navigate to="/login" replace />

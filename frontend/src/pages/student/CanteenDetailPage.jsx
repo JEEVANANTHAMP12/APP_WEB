@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 const CanteenDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart, cart } = useCart();
+  const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
   const [canteen, setCanteen] = useState(null);
   const [menu, setMenu] = useState({});
   const [categories, setCategories] = useState([]);
@@ -49,7 +49,7 @@ const CanteenDetailPage = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Hero */}
       <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm">
-        <div className="h-56 bg-gradient-to-br from-orange-500/30 to-red-500/30 flex items-center justify-center relative">
+        <div className="h-56 flex items-center justify-center relative" style={{ background: 'linear-gradient(135deg, #6366f115, #a855f715)' }}>
           {canteen.image ? (
             <img src={canteen.image} alt={canteen.name} className="w-full h-full object-cover" />
           ) : (
@@ -86,8 +86,9 @@ const CanteenDetailPage = () => {
             key={t}
             onClick={() => setTab(t)}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-              tab === t ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'
-            }`}
+              tab === t ? 'bg-brand-gradient text-white shadow-brand' : ''
+            }
+            style={tab !== t ? { color: 'var(--text-muted)' } : {}}`}
           >
             {t === 'menu' ? '🍔 Menu' : `⭐ Reviews (${reviews.length})`}
           </button>
@@ -106,7 +107,8 @@ const CanteenDetailPage = () => {
               <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider px-1 mb-2">Categories</p>
               <button
                 onClick={() => setActiveCategory('')}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all mb-1 ${!activeCategory ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all mb-1 ${!activeCategory ? 'bg-indigo-500/15 text-indigo-400' : 'hover:bg-white/5'}`}
+                style={activeCategory ? { color: 'var(--text-muted)' } : {}}
               >
                 All Items
               </button>
@@ -114,7 +116,8 @@ const CanteenDetailPage = () => {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(activeCategory === cat ? '' : cat)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all flex justify-between ${activeCategory === cat ? 'bg-orange-500/20 text-orange-300' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all flex justify-between ${activeCategory === cat ? 'bg-indigo-500/15 text-indigo-400' : 'hover:bg-white/5'}`}
+                  style={activeCategory !== cat ? { color: 'var(--text-muted)' } : {}}
                 >
                   {cat}
                   <span className="text-xs opacity-60">{menu[cat]?.length}</span>
@@ -130,7 +133,7 @@ const CanteenDetailPage = () => {
               .map(([category, items]) => (
                 <div key={category}>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="w-1 h-5 bg-gradient-to-b from-orange-500 to-red-500 rounded-full" />
+                    <span className="w-1 h-5 bg-brand-gradient rounded-full" />
                     <h3 className="font-bold text-white">{category}</h3>
                   </div>
                   <div className="space-y-3">
@@ -138,23 +141,23 @@ const CanteenDetailPage = () => {
                       const qty = cartItemCount(item._id);
                       return (
                         <div key={item._id} className="card flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-xl bg-orange-500/20 flex items-center justify-center overflow-hidden shrink-0">
+                          <div className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden shrink-0" style={{ background: 'var(--bg-elevated)' }}>
                             {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : <span className="text-2xl">🍱</span>}
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-white">{item.name}</h4>
                             {item.description && <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{item.description}</p>}
-                            <p className="text-sm font-bold text-orange-400 mt-1">₹{item.price}</p>
+                            <p className="text-sm font-bold text-indigo-400 mt-1">₹{item.price}</p>
                           </div>
-                          {item.is_available ? (
+                          {item.availability ? (
                             qty > 0 ? (
                               <div className="flex items-center gap-2 shrink-0">
-                                <button onClick={() => addToCart({ ...item, quantity: qty - 1 })} className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition-all">−</button>
+                                <button onClick={() => updateQuantity(item._id, qty - 1)} className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition-all">−</button>
                                 <span className="w-5 text-center font-bold text-white">{qty}</span>
-                                <button onClick={() => addToCart({ ...item, quantity: qty + 1 })} className="w-8 h-8 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold flex items-center justify-center shadow-lg transition-all">+</button>
+                                <button onClick={() => updateQuantity(item._id, qty + 1)} className="w-8 h-8 rounded-lg bg-brand-gradient text-white font-bold flex items-center justify-center shadow-brand transition-all">+</button>
                               </div>
                             ) : (
-                              <button onClick={() => addToCart({ ...item, quantity: 1 })} className="btn-primary shrink-0 text-xs px-3 py-2">Add</button>
+                              <button onClick={() => addToCart(item, id)} className="btn-primary shrink-0 text-xs px-3 py-2">Add</button>
                             )
                           ) : (
                             <span className="badge-danger text-xs shrink-0">Unavailable</span>
@@ -181,7 +184,7 @@ const CanteenDetailPage = () => {
             <div key={r._id} className="card">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-sm">
                     {r.user_id?.name?.[0]?.toUpperCase()}
                   </div>
                   <span className="font-medium text-white">{r.user_id?.name}</span>
@@ -204,7 +207,7 @@ const CanteenDetailPage = () => {
         <div className="fixed bottom-20 md:bottom-6 right-4 z-50">
           <button
             onClick={() => navigate('/student/cart')}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl shadow-2xl shadow-orange-500/40 font-semibold hover:scale-105 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-brand-gradient text-white rounded-2xl shadow-brand-lg font-semibold hover:scale-105 transition-all"
           >
             🛒 View Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)
           </button>

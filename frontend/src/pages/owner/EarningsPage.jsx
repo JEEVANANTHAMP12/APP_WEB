@@ -90,7 +90,7 @@ const EarningsPage = () => {
                     <span className="text-white font-semibold">{s.count} ({pct}%)</span>
                   </div>
                   <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-brand-gradient rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );

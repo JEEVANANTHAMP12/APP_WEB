@@ -1,116 +1,133 @@
-import { Outlet, NavLink } from 'react-router-dom';
+// @ts-nocheck
+import { useState, useEffect } from 'react';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard, Users, Store, Building2, Megaphone,
+  Menu, X, Sun, Moon, LogOut, ShieldCheck,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
-const adminNavItems = [
-  { to: '/admin/dashboard',   label: 'Dashboard',    icon: '📊', exact: true },
-  { to: '/admin/users',       label: 'Users',        icon: '👥' },
-  { to: '/admin/canteens',    label: 'Canteens',     icon: '🍽️' },
-  { to: '/admin/universities',label: 'Universities', icon: '🎓' },
-  { to: '/admin/ads',         label: 'Advertisements',icon: '📢' },
+const NAV = [
+  { to: '/admin/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
+  { to: '/admin/users',        icon: Users,           label: 'Users'        },
+  { to: '/admin/canteens',     icon: Store,           label: 'Canteens'     },
+  { to: '/admin/universities', icon: Building2,       label: 'Universities' },
+  { to: '/admin/ads',          icon: Megaphone,       label: 'Ads'          },
 ];
 
-const AdminLayout = () => {
+const SidebarContent = ({ onClose }) => {
   const { user, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'AD';
 
   return (
-    <div className="h-screen bg-slate-950 flex overflow-hidden">
-
-      {/* ── Sidebar ──────────────────────────────────────── */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col
-          border-r border-white/10 bg-slate-900/95 backdrop-blur-xl
-          transform transition-transform duration-300
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:relative lg:translate-x-0`}
-      >
-        {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-5 border-b border-white/10 shrink-0">
-          <span className="text-2xl">🔐</span>
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="flex items-center justify-between px-2 mb-8">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold shadow-lg"
+               style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}>
+            <ShieldCheck size={18} />
+          </div>
           <div>
-            <p className="text-sm font-bold text-white">Admin Panel</p>
-            <p className="text-[10px] text-slate-500 font-medium">Campus Cravings</p>
+            <p className="font-display font-bold text-sm leading-none" style={{ color: 'var(--text-primary)' }}>
+              Admin <span style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Panel</span>
+            </p>
+            <p className="text-2xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Platform Administration</p>
           </div>
         </div>
+        {onClose && (
+          <button onClick={onClose} className="btn-ghost btn-icon lg:hidden"><X size={18} /></button>
+        )}
+      </div>
 
-        {/* User info */}
-        <div className="px-4 py-4 border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-3 px-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
-              {user?.name?.[0]?.toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-              <p className="text-xs text-violet-400">Super Admin</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {adminNavItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.exact}
-              onClick={() => setSidebarOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-300 border border-violet-500/20'
-                    : 'text-slate-400 hover:bg-white/10 hover:text-white'
-                }`
-              }
-            >
-              <span className="text-lg">{item.icon}</span>
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-white/10 shrink-0">
-          <button
-            onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+      {/* Nav */}
+      <nav className="flex flex-col gap-1 flex-1">
+        <p className="text-2xs font-semibold uppercase tracking-wider px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+          Platform
+        </p>
+        {NAV.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            onClick={onClose}
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
-            <span className="text-lg">🚪</span> Logout
-          </button>
+            {({ isActive }) => (
+              <>
+                <Icon size={17} strokeWidth={1.75} />
+                <span className="flex-1">{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <div className="mt-auto pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="flex items-center gap-3 px-3 py-3 rounded-xl mb-2" style={{ background: 'var(--bg-elevated)' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-xs shrink-0"
+               style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)' }}>
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user?.name}</p>
+            <p className="text-2xs" style={{ color: 'var(--text-muted)' }}>Administrator</p>
+          </div>
         </div>
+        <button
+          onClick={() => { logout(); navigate('/login'); }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
+        >
+          <LogOut size={16} />
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AdminLayout = () => {
+  const { isDark, toggleTheme } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
+
+  return (
+    <div className="flex min-h-dvh" style={{ background: 'var(--bg-base)' }}>
+      <aside className="hidden lg:flex sidebar">
+        <SidebarContent />
       </aside>
 
-      {/* Sidebar overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <>
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden animate-fade-in"
+               onClick={() => setSidebarOpen(false)} />
+          <aside className="fixed left-0 top-0 bottom-0 z-50 w-72 flex flex-col lg:hidden border-r animate-slide-left"
+                 style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-color)', padding: '1.5rem 1rem' }}>
+            <SidebarContent onClose={() => setSidebarOpen(false)} />
+          </aside>
+        </>
       )}
 
-      {/* ── Main area ────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top bar */}
-        <header className="h-16 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl flex items-center px-5 gap-4 sticky top-0 z-30">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-xl hover:bg-white/10 text-white transition-all"
-          >
-            ☰
-          </button>
-          <div className="flex-1" />
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 sm:px-6 border-b"
+                style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-color)' }}>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-xs bg-violet-500/20 text-violet-300 px-3 py-1.5 rounded-full font-medium border border-violet-500/20">
-              🔐 Admin Mode
-            </span>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-              {user?.name?.[0]?.toUpperCase()}
+            <button onClick={() => setSidebarOpen(true)} className="btn-ghost btn-icon lg:hidden"><Menu size={20} /></button>
+            <div className="font-display font-bold text-sm lg:hidden flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
+              <ShieldCheck size={18} className="text-purple-500" /> Admin
             </div>
           </div>
+          <button onClick={toggleTheme} className="btn-ghost btn-icon">
+            {isDark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+          </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-5 lg:p-8">
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 animate-fade-in">
             <Outlet />
           </div>
         </main>

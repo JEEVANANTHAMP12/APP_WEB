@@ -44,7 +44,7 @@ const QRVerifyPage = () => {
 
       {/* Input form */}
       <div className="card space-y-4">
-        <div className="flex items-center justify-center h-32 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-dashed border-orange-500/30">
+        <div className="flex items-center justify-center h-32 rounded-xl border-2 border-dashed" style={{ background: 'var(--bg-elevated)', borderColor: '#6366f150' }}>
           <div className="text-center">
             <span className="text-4xl block mb-2">📷</span>
             <p className="text-slate-400 text-sm">Manual code entry below</p>
@@ -66,7 +66,8 @@ const QRVerifyPage = () => {
 
       {/* Order Result */}
       {order && (
-        <div className={`card space-y-4 border-2 transition-all ${done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-orange-500/30'}`}>
+        <div className={`card space-y-4 border-2 transition-all ${done ? 'border-emerald-500/40 bg-emerald-500/5' : ''}`}
+             style={!done ? { borderColor: '#6366f150' } : {}}>
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-bold text-white text-lg">#{order.order_number}</h2>

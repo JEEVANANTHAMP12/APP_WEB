@@ -75,14 +75,17 @@ const OrderDetailPage = () => {
                 const done = i <= currentStage;
                 return (
                   <div key={stage} className="flex flex-col items-center gap-2 relative z-10 flex-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all duration-500 ${done ? 'bg-gradient-to-br from-orange-500 to-red-500 shadow-lg shadow-orange-500/30' : 'bg-white/10'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all duration-500 ${done ? 'bg-brand-gradient shadow-brand' : ''}`}
+                         style={!done ? { background: 'var(--bg-elevated)' } : {}}>
                       {done ? stageInfo[stage].icon : <span className="text-slate-500 text-xs">○</span>}
                     </div>
-                    <span className={`text-xs font-medium text-center ${done ? 'text-orange-300' : 'text-slate-500'}`}>
+                    <span className={`text-xs font-medium text-center ${done ? 'text-indigo-400' : ''}`}
+                          style={!done ? { color: 'var(--text-muted)' } : {}}>
                       {stageInfo[stage].label}
                     </span>
                     {i < stages.length - 1 && (
-                      <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-all duration-700 ${i < currentStage ? 'bg-orange-500' : 'bg-white/10'}`} />
+                      <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-all duration-700 ${i < currentStage ? 'bg-indigo-500' : ''}`}
+                           style={i >= currentStage ? { background: 'var(--border-color)' } : {}} />
                     )}
                   </div>
                 );
@@ -113,19 +116,19 @@ const OrderDetailPage = () => {
 
       {/* Canteen */}
       <div className="card">
-        <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Canteen</p>
-        <p className="font-semibold text-white">🍽️ {order.canteen_id?.name}</p>
-        {order.canteen_id?.phone && <p className="text-sm text-slate-400 mt-1">📞 {order.canteen_id.phone}</p>}
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Canteen</p>
+        <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>🍽️ {order.canteen_id?.name}</p>
+        {order.canteen_id?.phone && <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>📞 {order.canteen_id.phone}</p>}
       </div>
 
       {/* Items */}
       <div className="card">
-        <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-4">Items Ordered</p>
+        <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>Items Ordered</p>
         <div className="space-y-3">
           {order.items.map((item, i) => (
             <div key={i} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--bg-elevated)' }}>
                   {item.image ? (
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                   ) : (
@@ -133,11 +136,11 @@ const OrderDetailPage = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">{item.name}</p>
-                  <p className="text-xs text-slate-400">₹{item.price} × {item.quantity}</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.name}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>₹{item.price} × {item.quantity}</p>
                 </div>
               </div>
-              <span className="font-semibold text-white">₹{item.price * item.quantity}</span>
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>₹{item.price * item.quantity}</span>
             </div>
           ))}
           <div className="border-t border-white/10 pt-3 flex justify-between font-bold text-white">

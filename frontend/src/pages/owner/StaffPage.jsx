@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react';
+﻿// @ts-nocheck
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { canteenAPI, adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -149,8 +150,8 @@ const StaffPage = () => {
 
       {modal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-white/10 sticky top-0 bg-slate-900 z-10">
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+            <div className="flex items-center justify-between p-5 border-b sticky top-0 z-10" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-color)' }}>
               <h2 className="font-bold text-white">{isEdit ? 'Edit Staff Member' : 'Add Staff Member'}</h2>
               <button onClick={closeModal} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-all">✕</button>
             </div>
@@ -186,7 +187,7 @@ const StaffPage = () => {
                 <label className="input-label">Date of Birth</label>
                 <input type="date" className="input" value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
                 {form.date_of_birth && (
-                  <p className="text-xs text-slate-400 mt-1">Age: <span className="text-orange-400 font-medium">{calcAge(form.date_of_birth)} years</span></p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Age: <span className="text-indigo-400 font-medium">{calcAge(form.date_of_birth)} years</span></p>
                 )}
               </div>
 

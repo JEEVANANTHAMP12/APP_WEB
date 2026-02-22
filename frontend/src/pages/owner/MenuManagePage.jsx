@@ -60,7 +60,7 @@ const MenuManagePage = () => {
 
   const handleToggle = async (id) => {
     try {
-      const { data } = await menuAPI.toggle(id);
+      const { data } = await menuAPI.toggleAvailability(id);
       setItems((prev) => prev.map((i) => i._id === id ? { ...i, availability: data.data.availability } : i));
     } catch { toast.error('Toggle failed'); }
   };
@@ -94,7 +94,7 @@ const MenuManagePage = () => {
           {filtered.map((item) => (
             <div key={item._id} className="card">
               <div className="flex gap-3 mb-3">
-                <div className="w-14 h-14 rounded-xl bg-orange-500/20 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden shrink-0" style={{ background: 'var(--bg-elevated)' }}>
                   {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : <span className="text-2xl">🍱</span>}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -102,7 +102,7 @@ const MenuManagePage = () => {
                     <h4 className="font-semibold text-white text-sm truncate">{item.name}</h4>
                     <span className={`shrink-0 w-3 h-3 rounded-full ${item.is_veg ? 'bg-emerald-500' : 'bg-red-500'}`} title={item.is_veg ? 'Veg' : 'Non-veg'} />
                   </div>
-                  <p className="text-orange-400 font-bold text-sm">₹{item.price}</p>
+                  <p className="text-indigo-400 font-bold text-sm">₹{item.price}</p>
                   <p className="text-slate-500 text-xs">{item.category}</p>
                 </div>
               </div>
@@ -129,8 +129,8 @@ const MenuManagePage = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-white/10">
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
+            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border-color)' }}>
               <h2 className="font-bold text-white">{editItem ? 'Edit Item' : 'Add New Item'}</h2>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-all">✕</button>
             </div>

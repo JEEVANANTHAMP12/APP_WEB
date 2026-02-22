@@ -10,7 +10,7 @@ const canteenOwnerGuard = asyncHandler(async (req, res, next) => {
     return errorResponse(res, 400, 'Canteen ID is required');
   }
 
-  // Only owners and admins can access canteen resources
+  // Only owners, staff, and admins can access canteen resources
   if (req.user.role === 'student') {
     return errorResponse(res, 403, 'Students cannot manage canteens');
   }
@@ -27,6 +27,13 @@ const canteenOwnerGuard = asyncHandler(async (req, res, next) => {
     }
   }
 
+  // Check if staff belongs to this canteen
+  if (req.user.role === 'staff') {
+    if (!req.user.canteen_id || req.user.canteen_id.toString() !== canteenId) {
+      return errorResponse(res, 403, 'Not authorized for this canteen');
+    }
+  }
+
   // Add canteen to request for downstream use
   req.canteenId = canteenId;
   next();
@@ -40,10 +47,10 @@ const adminGuard = (req, res, next) => {
   next();
 };
 
-// Verify user is owner
+// Verify user is owner or staff
 const ownerGuard = (req, res, next) => {
-  if (req.user.role !== 'owner' && req.user.role !== 'admin') {
-    return errorResponse(res, 403, 'Owner/admin access required');
+  if (req.user.role !== 'owner' && req.user.role !== 'staff' && req.user.role !== 'admin') {
+    return errorResponse(res, 403, 'Owner/staff/admin access required');
   }
   next();
 };

@@ -164,15 +164,12 @@ const createStaff = asyncHandler(async (req, res) => {
   const exists = await User.findOne({ email: email.toLowerCase() });
   if (exists) return errorResponse(res, 400, 'Email already registered');
 
-  const bcrypt = require('bcryptjs');
-  const hashed = await bcrypt.hash(password, 10);
-
   const { date_of_birth, hometown } = req.body;
 
   const staff = await User.create({
     name,
     email: email.toLowerCase(),
-    password: hashed,
+    password,
     phone: phone || '',
     role: 'staff',
     canteen_id: canteen._id,
@@ -218,8 +215,7 @@ const updateStaff = asyncHandler(async (req, res) => {
   if (date_of_birth !== undefined) staffMember.date_of_birth = date_of_birth || null;
   if (hometown !== undefined) staffMember.hometown = hometown;
   if (password && password.trim().length >= 6) {
-    const bcrypt = require('bcryptjs');
-    staffMember.password = await bcrypt.hash(password, 10);
+    staffMember.password = password;
   }
 
   await staffMember.save();

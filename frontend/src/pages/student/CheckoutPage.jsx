@@ -26,8 +26,14 @@ const CheckoutPage = () => {
     if (cart.length === 0) { toast.error('Cart is empty'); return; }
     setLoading(true);
     try {
+      const effectiveCanteenId = canteenId || cart[0]?.canteen_id?._id || cart[0]?.canteen_id;
+      if (!effectiveCanteenId) {
+        toast.error('Canteen info missing. Please clear cart and try again.');
+        setLoading(false);
+        return;
+      }
       const { data: orderData } = await orderAPI.place({
-        canteen_id: canteenId,
+        canteen_id: effectiveCanteenId,
         items: cart.map((i) => ({ menu_item_id: i._id, quantity: i.quantity })),
         payment_method: paymentMethod,
         special_instructions: instructions,
@@ -62,7 +68,7 @@ const CheckoutPage = () => {
         description: `Order ${rzp.order_number}`,
         order_id: rzp.razorpay_order_id,
         prefill: { name: user.name, email: user.email },
-        theme: { color: '#f97316' },
+        theme: { color: '#6366f1' },
         handler: async (response) => {
           try {
             await paymentAPI.verify({
@@ -101,15 +107,15 @@ const CheckoutPage = () => {
 
       {/* Order Summary */}
       <div className="card">
-        <h3 className="font-bold text-white mb-4">Order Summary</h3>
+        <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Order Summary</h3>
         <div className="space-y-3">
           {cart.map((item) => (
             <div key={item._id} className="flex justify-between text-sm">
-              <span className="text-slate-400">{item.name} × {item.quantity}</span>
-              <span className="font-medium text-white">₹{item.price * item.quantity}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>{item.name} × {item.quantity}</span>
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>₹{item.price * item.quantity}</span>
             </div>
           ))}
-          <div className="border-t border-white/10 pt-3 flex justify-between font-bold text-white">
+          <div className="pt-3 flex justify-between font-bold" style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border-color)' }}>
             <span>Total</span>
             <span className="gradient-text text-lg">₹{cartTotal}</span>
           </div>
@@ -118,7 +124,7 @@ const CheckoutPage = () => {
 
       {/* Payment Method */}
       <div className="card">
-        <h3 className="font-bold text-white mb-4">Payment Method</h3>
+        <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Payment Method</h3>
         <div className="space-y-2">
           {payMethods.map((m) => (
             <button
@@ -126,18 +132,20 @@ const CheckoutPage = () => {
               onClick={() => setPaymentMethod(m.id)}
               className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
                 paymentMethod === m.id
-                  ? 'border-orange-500/50 bg-orange-500/10'
-                  : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                  ? 'border-indigo-500/50 bg-indigo-500/10'
+                  : 'hover:bg-white/5'
               }`}
+              style={paymentMethod !== m.id ? { borderColor: 'var(--border-color)' } : {}}
             >
               <span className="text-2xl">{m.icon}</span>
               <div>
-                <p className="font-semibold text-white text-sm">{m.label}</p>
-                <p className="text-slate-400 text-xs mt-0.5">{m.desc}</p>
+              <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{m.label}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{m.desc}</p>
               </div>
               <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                paymentMethod === m.id ? 'border-orange-500 bg-orange-500' : 'border-white/20'
-              }`}>
+                paymentMethod === m.id ? 'border-indigo-500 bg-indigo-500' : ''
+              }`}
+              style={paymentMethod !== m.id ? { borderColor: 'var(--border-color)' } : {}}>
                 {paymentMethod === m.id && <span className="text-white text-xs">✓</span>}
               </div>
             </button>
@@ -147,7 +155,7 @@ const CheckoutPage = () => {
 
       {/* Special Instructions */}
       <div className="card">
-        <h3 className="font-bold text-white mb-3">Special Instructions</h3>
+        <h3 className="font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Special Instructions</h3>
         <textarea
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}

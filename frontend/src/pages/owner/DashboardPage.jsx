@@ -45,10 +45,10 @@ const DashboardPage = () => {
   const ordersData = analytics?.last_7_days?.map((d) => d.orders) || [];
 
   const stats = [
-    { label: 'Total Orders', value: analytics?.total_orders || 0, icon: '📦', color: 'from-blue-500/20 to-cyan-500/20', text: 'text-blue-300' },
-    { label: 'Total Revenue', value: `₹${analytics?.total_revenue || 0}`, icon: '💰', color: 'from-emerald-500/20 to-teal-500/20', text: 'text-emerald-300' },
-    { label: "Today's Orders", value: analytics?.last_7_days?.[analytics.last_7_days.length - 1]?.orders || 0, icon: '🛎️', color: 'from-orange-500/20 to-amber-500/20', text: 'text-orange-300' },
-    { label: 'Pending', value: analytics?.status_breakdown?.find(s => s._id === 'placed')?.count || 0, icon: '⏳', color: 'from-violet-500/20 to-purple-500/20', text: 'text-violet-300' },
+    { label: 'Total Orders', value: analytics?.total_orders || 0, icon: '📦', color: 'from-blue-500/10 to-cyan-500/10', text: 'text-blue-400' },
+    { label: 'Total Revenue', value: `₹${analytics?.total_revenue || 0}`, icon: '💰', color: 'from-emerald-500/10 to-teal-500/10', text: 'text-emerald-400' },
+    { label: "Today's Orders", value: analytics?.last_7_days?.[analytics.last_7_days.length - 1]?.orders || 0, icon: '🛎️', color: 'from-indigo-500/10 to-violet-500/10', text: 'text-indigo-400' },
+    { label: 'Pending', value: analytics?.status_breakdown?.find(s => s._id === 'placed')?.count || 0, icon: '⏳', color: 'from-violet-500/10 to-purple-500/10', text: 'text-violet-400' },
   ];
 
   return (
@@ -64,7 +64,7 @@ const DashboardPage = () => {
           <div key={s.label} className={`card bg-gradient-to-br ${s.color}`}>
             <span className="text-2xl mb-3 block">{s.icon}</span>
             <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
-            <p className="text-xs text-slate-400 mt-1">{s.label}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -72,16 +72,16 @@ const DashboardPage = () => {
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-5">
         <div className="card">
-          <h3 className="font-bold text-white mb-4">Revenue — Last 7 Days</h3>
+          <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Revenue — Last 7 Days</h3>
           <Bar
-            data={{ labels, datasets: [{ label: 'Revenue (₹)', data: revenueData, backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 6 }] }}
+            data={{ labels, datasets: [{ label: 'Revenue (₹)', data: revenueData, backgroundColor: 'rgba(99,102,241,0.55)', borderRadius: 6 }] }}
             options={chartOptions('Revenue')}
           />
         </div>
         <div className="card">
-          <h3 className="font-bold text-white mb-4">Orders — Last 7 Days</h3>
+          <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Orders — Last 7 Days</h3>
           <Line
-            data={{ labels, datasets: [{ label: 'Orders', data: ordersData, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', fill: true, tension: 0.4 }] }}
+            data={{ labels, datasets: [{ label: 'Orders', data: ordersData, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.4 }] }}
             options={chartOptions('Orders')}
           />
         </div>
@@ -89,14 +89,14 @@ const DashboardPage = () => {
 
       {/* Recent orders */}
       <div className="card">
-        <h3 className="font-bold text-white mb-4">Recent Orders</h3>
-        {recentOrders.length === 0 ? (
-          <p className="text-slate-400 text-sm text-center py-8">No orders yet</p>
+          <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Recent Orders</h3>
+          {recentOrders.length === 0 ? (
+            <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>No orders yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
+                <tr className="border-b" style={{ borderColor: 'var(--border-color)' }}>
                   <th className="table-header">Order #</th>
                   <th className="table-header">Customer</th>
                   <th className="table-header">Amount</th>
@@ -106,10 +106,10 @@ const DashboardPage = () => {
               </thead>
               <tbody>
                 {recentOrders.map((o) => (
-                  <tr key={o._id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="table-cell font-medium text-white">#{o.order_number}</td>
+                  <tr key={o._id} className="border-b hover:bg-white/[0.03]" style={{ borderColor: 'var(--border-color)' }}>
+                    <td className="table-cell font-medium" style={{ color: 'var(--text-primary)' }}>#{o.order_number}</td>
                     <td className="table-cell">{o.user_id?.name}</td>
-                    <td className="table-cell font-semibold text-white">₹{o.total_amount}</td>
+                    <td className="table-cell font-semibold" style={{ color: 'var(--text-primary)' }}>₹{o.total_amount}</td>
                     <td className="table-cell"><StatusBadge status={o.order_status} /></td>
                     <td className="table-cell">{new Date(o.createdAt).toLocaleTimeString()}</td>
                   </tr>

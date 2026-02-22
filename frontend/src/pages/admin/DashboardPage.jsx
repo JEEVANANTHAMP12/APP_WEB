@@ -12,7 +12,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const STAT_CARDS = [
   { key: 'total_users', label: 'Total Users', icon: '👤', gradient: 'from-blue-500 to-cyan-500', sub: 'Registered accounts' },
-  { key: 'total_orders', label: 'Total Orders', icon: '🛒', gradient: 'from-orange-500 to-red-500', sub: 'All time' },
+  { key: 'total_orders', label: 'Total Orders', icon: '🛒', gradient: 'from-indigo-500 to-violet-500', sub: 'All time' },
   { key: 'platform_revenue', label: 'Platform Revenue', icon: '💰', gradient: 'from-emerald-500 to-teal-500', sub: 'Commission earned', prefix: '₹' },
   { key: 'pending_approvals', label: 'Pending Approvals', icon: '⏳', gradient: 'from-violet-500 to-purple-600', sub: 'Canteen owners' },
 ];
@@ -42,11 +42,11 @@ const AdminDashboardPage = () => {
       {
         label: 'Orders',
         data: stats?.last_30_days?.map((d) => d.orders) || [],
-        borderColor: '#f97316',
-        backgroundColor: 'rgba(249,115,22,0.08)',
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.08)',
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: '#f97316',
+        pointBackgroundColor: '#6366f1',
         pointRadius: 3,
       },
       {
@@ -125,7 +125,7 @@ const AdminDashboardPage = () => {
 
       {/* Chart */}
       <div className="card animate-slide-up delay-300">
-        <h2 className="font-semibold text-slate-200 mb-5">Last 30 Days — Orders & Revenue</h2>
+        <h2 className="font-semibold mb-5" style={{ color: 'var(--text-primary)' }}>Last 30 Days — Orders &amp; Revenue</h2>
         <div className="h-64">
           <Line data={chartData} options={{ ...chartOptions, maintainAspectRatio: false }} />
         </div>
@@ -135,7 +135,7 @@ const AdminDashboardPage = () => {
       {stats?.pendingOwners?.length > 0 && (
         <div className="card animate-slide-up delay-400">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-semibold text-slate-200">Pending Owner Approvals</h2>
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Pending Owner Approvals</h2>
             <button
               onClick={() => navigate('/admin/canteens')}
               className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
@@ -145,14 +145,14 @@ const AdminDashboardPage = () => {
           </div>
           <ul className="space-y-3">
             {stats.pendingOwners.map((o) => (
-              <li key={o._id} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl">
+              <li key={o._id} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
                     {o.name?.[0]?.toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-medium text-slate-200 text-sm">{o.name}</p>
-                    <p className="text-slate-500 text-xs">{o.email}</p>
+                  <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{o.name}</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{o.email}</p>
                   </div>
                 </div>
                 <button

@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search, SlidersHorizontal, Star, Clock } from 'lucide-react';
 import { canteenAPI, universityAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/common/Loading';
@@ -43,7 +44,7 @@ const CanteensPage = () => {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder="Search canteens..."
@@ -67,10 +68,10 @@ const CanteensPage = () => {
       {loading ? (
         <Loading />
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="text-6xl mb-4">🔍</div>
-          <p className="text-white font-semibold text-lg">No canteens found</p>
-          <p className="text-slate-400 text-sm mt-1">Try changing your filters</p>
+        <div className="empty-state py-20">
+          <div className="empty-icon">🔍</div>
+          <p className="empty-title">No canteens found</p>
+          <p className="empty-desc">Try changing your filters</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -78,28 +79,33 @@ const CanteensPage = () => {
             <div
               key={canteen._id}
               onClick={() => navigate(`/student/canteens/${canteen._id}`)}
-              className="card-hover group overflow-hidden animate-slide-up"
+              className="card-hover group overflow-hidden cursor-pointer animate-slide-up"
               style={{ animationDelay: `${i * 60}ms` }}
             >
-              <div className="h-44 rounded-xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center mb-4 relative">
+              <div className="h-44 rounded-xl overflow-hidden flex items-center justify-center mb-4 relative"
+                   style={{ background: 'linear-gradient(135deg, #6366f115, #a855f715)' }}>
                 {canteen.image ? (
                   <img src={canteen.image} alt={canteen.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <span className="text-5xl">🍽️</span>
                 )}
-                <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold ${canteen.is_open ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+                <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold border backdrop-blur-sm
+                  ${canteen.is_open ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30'}`}>
                   {canteen.is_open ? '● Open' : '● Closed'}
                 </span>
               </div>
-              <h3 className="font-bold text-white text-lg group-hover:text-orange-300 transition-colors">{canteen.name}</h3>
-              {canteen.description && <p className="text-slate-400 text-sm mt-1 line-clamp-2">{canteen.description}</p>}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-yellow-400">★</span>
-                  <span className="text-white font-semibold text-sm">{canteen.rating}</span>
-                  <span className="text-slate-500 text-xs">({canteen.total_reviews})</span>
+              <h3 className="font-bold text-base truncate group-hover:text-indigo-400 transition-colors"
+                  style={{ color: 'var(--text-primary)' }}>{canteen.name}</h3>
+              {canteen.description && <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--text-muted)' }}>{canteen.description}</p>}
+              <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="flex items-center gap-1">
+                  <Star size={12} className="text-amber-400 fill-amber-400" />
+                  <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{canteen.rating}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>({canteen.total_reviews})</span>
                 </div>
-                <span className="text-slate-400 text-xs">⏱️ {canteen.opening_time} – {canteen.closing_time}</span>
+                <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <Clock size={11} /> {canteen.opening_time} – {canteen.closing_time}
+                </div>
               </div>
             </div>
           ))}
