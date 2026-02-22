@@ -192,7 +192,7 @@ const AdminCanteensPage = () => {
           <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
         </div>
       ) : canteens.length === 0 ? (
-        <div className="card text-center text-slate-500 py-16">
+        <div className="card text-center py-16" style={{ color: 'var(--text-muted)' }}>
           <div className="text-4xl mb-3">🏪</div>
           <p>No canteens in this category</p>
         </div>
@@ -203,25 +203,27 @@ const AdminCanteensPage = () => {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex gap-4 items-start">
                   {c.image && (
-                    <img src={c.image} alt={c.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-slate-700" />
+                    <img src={c.image} alt={c.name} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" style={{ background: 'var(--bg-elevated)' }} />
                   )}
                   <div>
-                    <p className="font-bold text-slate-100 text-lg">{c.name}</p>
-                    <p className="text-slate-400 text-sm mt-0.5">{c.university_id?.name} · {c.phone || '—'}</p>
-                    <p className="text-slate-500 text-xs mt-1">Owner: {c.owner_id?.name || '—'} {c.owner_id?.email ? `(${c.owner_id.email})` : ''}</p>
+                    <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{c.name}</p>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{c.university_id?.name} · {c.phone || '—'}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Owner: {c.owner_id?.name || '—'} {c.owner_id?.email ? `(${c.owner_id.email})` : ''}</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${STATUS_STYLES[c.status] || 'bg-slate-700 text-slate-300'}`}>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${STATUS_STYLES[c.status] || ''}`}
+                        style={!STATUS_STYLES[c.status] ? { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' } : {}}>
                     {c.status}
                   </span>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.is_open ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700/60 text-slate-500'}`}>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.is_open ? 'bg-emerald-500/20 text-emerald-400' : ''}`}
+                        style={!c.is_open ? { background: 'var(--bg-elevated)', color: 'var(--text-muted)' } : {}}>
                     {c.is_open ? '🟢 Open' : '⚫ Closed'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 pt-3 border-t border-white/5">
+              <div className="flex flex-wrap gap-2 pt-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
                 {c.status === 'pending' && (
                   <button
                     onClick={() => handleApprove(c.owner_id?._id)}
@@ -262,8 +264,8 @@ const AdminCanteensPage = () => {
 
                 {/* Commission */}
                 <div className="flex gap-2 ml-auto items-center">
-                  <span className="text-xs text-slate-500">
-                    Commission: <span className="text-slate-300 font-semibold">{c.commission_percentage}%</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Commission: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{c.commission_percentage}%</span>
                   </span>
                   <input
                     type="number" min="0" max="50" step="0.5"
@@ -291,7 +293,7 @@ const AdminCanteensPage = () => {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeModal} />
           <div className="relative card w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-100">
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 {modal === 'create' ? 'Add New Canteen' : 'Edit Canteen'}
               </h2>
               <button onClick={closeModal} className="btn-ghost p-1 rounded-lg transition-colors">
@@ -398,12 +400,12 @@ const AdminCanteensPage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-100">Delete Canteen</h3>
-                <p className="text-sm text-slate-400">This action cannot be undone</p>
+                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Delete Canteen</h3>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This action cannot be undone</p>
               </div>
             </div>
-            <p className="text-sm text-slate-300">
-              Permanently delete <span className="font-semibold text-white">{deleteTarget.name}</span>?
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Permanently delete <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{deleteTarget.name}</span>?
             </p>
             <div className="flex gap-3 pt-1">
               <button onClick={() => setDeleteTarget(null)} className="btn-secondary flex-1 py-2 text-sm" disabled={deleting}>

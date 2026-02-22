@@ -2,6 +2,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { canteenAPI } from '../../services/api';
 import Loading from '../../components/common/Loading';
+import ImageUpload from '../../components/common/ImageUpload';
 import toast from 'react-hot-toast';
 
 const CanteenProfilePage = () => {
@@ -86,14 +87,15 @@ const CanteenProfilePage = () => {
           <label className="input-label">Description</label>
           <textarea className="input resize-none" rows={3} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </div>
+        <ImageUpload
+          value={form.image || ''}
+          onChange={(v) => setForm({ ...form, image: v })}
+          label="Canteen Photo"
+        />
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="input-label">Phone</label>
             <input className="input" value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          </div>
-          <div>
-            <label className="input-label">Image URL</label>
-            <input className="input" value={form.image || ''} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
           </div>
           <div>
             <label className="input-label">Opening Time</label>

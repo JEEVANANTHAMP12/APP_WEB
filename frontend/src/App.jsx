@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -40,6 +41,7 @@ import QRVerifyPage from './pages/owner/QRVerifyPage';
 import StaffLayout from './layouts/StaffLayout';
 import StaffMenuPage from './pages/staff/MenuPage';
 import StaffQRVerifyPage from './pages/staff/QRVerifyPage';
+import StaffProfilePage from './pages/staff/ProfilePage';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -48,6 +50,10 @@ import AdminUsers from './pages/admin/UsersPage';
 import AdminCanteens from './pages/admin/CanteensPage';
 import AdminUniversities from './pages/admin/UniversitiesPage';
 import AdminAds from './pages/admin/AdsPage';
+import AdminProfilePage from './pages/admin/ProfilePage';
+
+// Owner extra profile
+import OwnerMyProfilePage from './pages/owner/MyProfilePage';
 
 const AppRoutes = () => {
   const { initialLoading, user } = useAuth();
@@ -96,6 +102,7 @@ const AppRoutes = () => {
           <Route path="earnings" element={<EarningsPage />} />
           <Route path="staff" element={<StaffPage />} />
           <Route path="qr-verify" element={<QRVerifyPage />} />
+          <Route path="my-account" element={<OwnerMyProfilePage />} />
         </Route>
 
         {/* Staff */}
@@ -111,6 +118,7 @@ const AppRoutes = () => {
           <Route path="orders" element={<OwnerOrdersPage />} />
           <Route path="qr-verify" element={<StaffQRVerifyPage />} />
           <Route path="menu" element={<StaffMenuPage />} />
+          <Route path="profile" element={<StaffProfilePage />} />
         </Route>
 
         {/* Admin */}
@@ -127,6 +135,7 @@ const AppRoutes = () => {
           <Route path="canteens" element={<AdminCanteens />} />
           <Route path="universities" element={<AdminUniversities />} />
           <Route path="ads" element={<AdminAds />} />
+          <Route path="profile" element={<AdminProfilePage />} />
         </Route>
 
         {/* Root path - redirect based on user role */}

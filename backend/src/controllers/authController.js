@@ -2,26 +2,103 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const generateTokens = require('../utils/generateToken');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const { sendOtpEmail } = require('../utils/mail');
 
-// @desc    Register user
-// @route   POST /api/auth/register
+/* ─── In-memory OTP store  { email → { otp, expiresAt, name } } ─ */
+const otpStore = new Map();
+
+const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function generateOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// @desc    Send OTP to email before registration
+// @route   POST /api/auth/send-otp
 // @access  Public
-const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role, university_id, phone } = req.body;
+const sendOtp = asyncHandler(async (req, res) => {
+  const { email, name } = req.body;
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return errorResponse(res, 400, 'Email already registered');
+  if (!email) return errorResponse(res, 400, 'Email is required');
+
+  const existing = await User.findOne({ email: email.toLowerCase().trim() });
+  if (existing) return errorResponse(res, 400, 'Email already registered');
+
+  const otp = generateOtp();
+  otpStore.set(email.toLowerCase().trim(), {
+    otp,
+    expiresAt: Date.now() + OTP_TTL_MS,
+    name: name || 'there',
+  });
+
+  // Send email; fall back to console log in dev when SMTP is not configured
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      await sendOtpEmail(email.toLowerCase().trim(), otp, name);
+    } catch (err) {
+      console.error('Mail send error:', err.message);
+      return errorResponse(res, 500, 'Failed to send OTP email. Check SMTP config.');
+    }
+  } else {
+    console.log(`[DEV] OTP for ${email}: ${otp}`);
   }
 
-  const userData = { name, email, password, phone };
+  return successResponse(res, 200, 'OTP sent to your email');
+});
+
+// @desc    Resend OTP
+// @route   POST /api/auth/resend-otp
+// @access  Public
+const resendOtp = asyncHandler(async (req, res) => {
+  const { email, name } = req.body;
+  if (!email) return errorResponse(res, 400, 'Email is required');
+
+  const key = email.toLowerCase().trim();
+  const existing = await User.findOne({ email: key });
+  if (existing) return errorResponse(res, 400, 'Email already registered');
+
+  const otp = generateOtp();
+  otpStore.set(key, { otp, expiresAt: Date.now() + OTP_TTL_MS, name: name || 'there' });
+
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try { await sendOtpEmail(key, otp, name); } catch (e) {
+      return errorResponse(res, 500, 'Failed to send OTP email.');
+    }
+  } else {
+    console.log(`[DEV] Resent OTP for ${key}: ${otp}`);
+  }
+
+  return successResponse(res, 200, 'OTP resent');
+});
+
+const register = asyncHandler(async (req, res) => {
+  const { name, email, password, role, university_id, phone, otp } = req.body;
+
+  const key = email?.toLowerCase().trim();
+
+  // Verify OTP
+  const record = otpStore.get(key);
+  if (!record) return errorResponse(res, 400, 'No OTP was sent to this email. Please request one first.');
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(key);
+    return errorResponse(res, 400, 'OTP has expired. Please request a new one.');
+  }
+  if (record.otp !== String(otp).trim()) {
+    return errorResponse(res, 400, 'Invalid OTP. Please try again.');
+  }
+  otpStore.delete(key);
+
+  const existingUser = await User.findOne({ email: key });
+  if (existingUser) return errorResponse(res, 400, 'Email already registered');
+
+  const userData = { name, email: key, password, phone };
 
   if (role === 'student') {
     userData.role = 'student';
     userData.university_id = university_id;
   } else if (role === 'owner') {
     userData.role = 'owner';
-    userData.is_approved = false; // pending admin approval
+    userData.is_approved = false;
   } else {
     userData.role = 'student';
   }
@@ -42,6 +119,7 @@ const register = asyncHandler(async (req, res) => {
     },
   });
 });
+
 
 // @desc    Login user
 // @route   POST /api/auth/login
@@ -130,4 +208,4 @@ const changePassword = asyncHandler(async (req, res) => {
   return successResponse(res, 200, 'Password changed successfully');
 });
 
-module.exports = { register, login, getMe, updateProfile, changePassword };
+module.exports = { sendOtp, resendOtp, register, login, getMe, updateProfile, changePassword };

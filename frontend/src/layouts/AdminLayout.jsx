@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Store, Building2, Megaphone,
-  Menu, X, Sun, Moon, LogOut, ShieldCheck,
+  Menu, X, Sun, Moon, LogOut, ShieldCheck, UserCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/admin/canteens',     icon: Store,           label: 'Canteens'     },
   { to: '/admin/universities', icon: Building2,       label: 'Universities' },
   { to: '/admin/ads',          icon: Megaphone,       label: 'Ads'          },
+  { to: '/admin/profile',      icon: UserCircle,      label: 'My Profile'   },
 ];
 
 const SidebarContent = ({ onClose }) => {

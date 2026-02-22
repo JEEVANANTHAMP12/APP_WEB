@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Star, Clock } from 'lucide-react';
-import { canteenAPI, universityAPI } from '../../services/api';
+import { Search, Star, Clock, Building2 } from 'lucide-react';
+import { canteenAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/common/Loading';
 
@@ -9,60 +9,65 @@ const CanteensPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [canteens, setCanteens] = useState([]);
-  const [universities, setUniversities] = useState([]);
-  const [selectedUni, setSelectedUni] = useState(
-    user?.university_id?._id || user?.university_id || ''
-  );
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    universityAPI.getAll({ limit: 100, status: 'active' })
-      .then(({ data }) => setUniversities(data.data))
-      .catch(() => {});
-  }, []);
+  // Always locked to the student's university
+  const universityId = user?.university_id?._id || user?.university_id;
+  const universityName = user?.university_id?.name || '';
 
   useEffect(() => {
+    if (!universityId) { setLoading(false); return; }
     setLoading(true);
     canteenAPI
-      .getAll({ university_id: selectedUni || undefined, limit: 50 })
+      .getAll({ university_id: universityId, limit: 50 })
       .then(({ data }) => setCanteens(data.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [selectedUni]);
+  }, [universityId]);
 
   const filtered = canteens.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  // No university assigned
+  if (!universityId) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h1 className="page-title">Browse Canteens</h1>
+          <p className="page-subtitle">Canteens at your campus</p>
+        </div>
+        <div className="card text-center py-16">
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.1)' }}>
+            <Building2 size={24} style={{ color: '#F59E0B' }} />
+          </div>
+          <p className="font-semibold text-base mb-1" style={{ color: 'var(--text-primary)' }}>No university linked</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Your account is not linked to a university. Please contact admin.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="page-title">Browse Canteens</h1>
-        <p className="page-subtitle">{filtered.length} canteens available</p>
+        <p className="page-subtitle">
+          {universityName && <span className="text-indigo-400 font-medium">{universityName} · </span>}
+          {filtered.length} canteen{filtered.length !== 1 ? 's' : ''} available
+        </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            placeholder="Search canteens..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input pl-9"
-          />
-        </div>
-        <select
-          value={selectedUni}
-          onChange={(e) => setSelectedUni(e.target.value)}
-          className="input sm:w-56"
-        >
-          <option value="">All Universities</option>
-          {universities.map((u) => (
-            <option key={u._id} value={u._id}>{u.name}</option>
-          ))}
-        </select>
+      <div className="relative">
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+        <input
+          type="text"
+          placeholder="Search canteens..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input pl-9"
+        />
       </div>
 
       {loading ? (

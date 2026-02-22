@@ -2,6 +2,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { menuAPI } from '../../services/api';
 import Loading from '../../components/common/Loading';
+import ImageUpload from '../../components/common/ImageUpload';
 import toast from 'react-hot-toast';
 
 const EMPTY = {
@@ -162,16 +163,19 @@ const MenuManagePage = () => {
                   <textarea rows={2} className="input resize-none" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
                 </div>
                 <div className="col-span-2">
-                  <label className="input-label">Image URL</label>
-                  <input className="input" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
+                  <ImageUpload
+                    value={form.image}
+                    onChange={(v) => setForm({ ...form, image: v })}
+                    label="Item Photo"
+                  />
                 </div>
                 <div className="flex items-center gap-3">
                   <input type="checkbox" id="veg" checked={form.is_veg} onChange={(e) => setForm({ ...form, is_veg: e.target.checked })} className="w-4 h-4 accent-emerald-500" />
-                  <label htmlFor="veg" className="text-sm text-slate-300">Vegetarian</label>
+                  <label htmlFor="veg" className="text-sm" style={{ color: 'var(--text-secondary)' }}>Vegetarian</label>
                 </div>
                 <div className="flex items-center gap-3">
                   <input type="checkbox" id="avail" checked={form.availability} onChange={(e) => setForm({ ...form, availability: e.target.checked })} className="w-4 h-4 accent-orange-500" />
-                  <label htmlFor="avail" className="text-sm text-slate-300">Available</label>
+                  <label htmlFor="avail" className="text-sm" style={{ color: 'var(--text-secondary)' }}>Available</label>
                 </div>
               </div>
 

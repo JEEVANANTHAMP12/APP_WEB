@@ -93,7 +93,7 @@ const WalletPage = () => {
         <div>
           <label className="input-label">Custom Amount</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold" style={{ color: 'var(--text-muted)' }}>₹</span>
             <input
               type="number"
               placeholder="Enter amount"

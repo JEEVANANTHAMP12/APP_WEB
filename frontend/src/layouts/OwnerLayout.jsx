@@ -4,19 +4,20 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Utensils, ClipboardList, DollarSign,
   Users, QrCode, Store, Menu, X, Sun, Moon, LogOut,
-  ChevronRight, Bell,
+  ChevronRight, Bell, UserCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 const NAV = [
-  { to: '/owner/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/owner/orders',    icon: ClipboardList,   label: 'Orders'    },
-  { to: '/owner/menu',      icon: Utensils,        label: 'Menu'      },
-  { to: '/owner/earnings',  icon: DollarSign,      label: 'Earnings'  },
-  { to: '/owner/staff',     icon: Users,           label: 'Staff'     },
-  { to: '/owner/qr-verify', icon: QrCode,          label: 'QR Verify' },
-  { to: '/owner/profile',   icon: Store,           label: 'Profile'   },
+  { to: '/owner/dashboard',   icon: LayoutDashboard, label: 'Dashboard'  },
+  { to: '/owner/orders',      icon: ClipboardList,   label: 'Orders'     },
+  { to: '/owner/menu',        icon: Utensils,        label: 'Menu'       },
+  { to: '/owner/earnings',    icon: DollarSign,      label: 'Earnings'   },
+  { to: '/owner/staff',       icon: Users,           label: 'Staff'      },
+  { to: '/owner/qr-verify',   icon: QrCode,          label: 'QR Verify'  },
+  { to: '/owner/profile',     icon: Store,           label: 'Canteen'    },
+  { to: '/owner/my-account',  icon: UserCircle,      label: 'My Account' },
 ];
 
 const SidebarContent = ({ onClose }) => {
@@ -95,6 +96,7 @@ const SidebarContent = ({ onClose }) => {
 };
 
 const OwnerLayout = () => {
+  const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -165,6 +167,15 @@ const OwnerLayout = () => {
         {/* Page content */}
         <main className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 animate-fade-in">
+            {!user?.canteen_id && (
+              <div className="mb-5 flex items-start gap-3 px-4 py-3.5 rounded-xl border" style={{ background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)' }}>
+                <span className="text-amber-400 mt-0.5" style={{ fontSize: 18 }}>⚠</span>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: '#F59E0B' }}>No canteen assigned</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Your account is not linked to a canteen yet. Please ask the Admin to assign your canteen.</p>
+                </div>
+              </div>
+            )}
             <Outlet />
           </div>
         </main>

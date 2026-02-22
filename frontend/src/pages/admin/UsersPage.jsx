@@ -17,7 +17,7 @@ const EMPTY_FORM = { name: '', email: '', password: '', role: 'student', phone: 
 
 const Field = ({ label, children }) => (
   <div className="space-y-1.5">
-    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">{label}</label>
+    <label className="block text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</label>
     {children}
   </div>
 );
@@ -156,8 +156,9 @@ const AdminUsersPage = () => {
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all capitalize ${
                 role === r
                   ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : ''
               }`}
+              style={role !== r ? { color: 'var(--text-secondary)' } : {}}
             >
               {r}
             </button>
@@ -168,7 +169,7 @@ const AdminUsersPage = () => {
           className="flex gap-2 ml-auto"
         >
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style={{ color: 'var(--text-muted)' }}>🔍</span>
             <input
               className="input pl-9 py-2 text-sm w-56"
               placeholder="Search name / email..."
@@ -199,28 +200,32 @@ const AdminUsersPage = () => {
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center text-slate-500 py-14">
+                    <td colSpan={6} className="text-center py-14" style={{ color: 'var(--text-muted)' }}>
                       <div className="text-3xl mb-2">👤</div>
                       No users found
                     </td>
                   </tr>
                 ) : users.map((u) => (
-                  <tr key={u._id} className="border-t border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <tr key={u._id} className="transition-colors"
+                       style={{ borderTop: '1px solid var(--border-color)' }}
+                       onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <td className="table-cell">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
                           {u.name?.[0]?.toUpperCase()}
                         </div>
-                        <span className="font-medium text-slate-200">{u.name}</span>
+                        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{u.name}</span>
                       </div>
                     </td>
-                    <td className="table-cell text-slate-400 text-sm">{u.email}</td>
+                    <td className="table-cell text-sm" style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
                     <td className="table-cell">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${ROLE_COLORS[u.role] || 'bg-slate-700 text-slate-300'}`}>
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${ROLE_COLORS[u.role] || ''}`}
+                            style={!ROLE_COLORS[u.role] ? { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' } : {}}>
                         {u.role}
                       </span>
                     </td>
-                    <td className="table-cell text-slate-400 text-sm">{u.phone || '—'}</td>
+                    <td className="table-cell text-sm" style={{ color: 'var(--text-secondary)' }}>{u.phone || '—'}</td>
                     <td className="table-cell">
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${u.is_active === false ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
                         {u.is_active === false ? 'Blocked' : 'Active'}
@@ -265,7 +270,7 @@ const AdminUsersPage = () => {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-slate-500 text-sm">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Page {page} of {totalPages} · {total} users
           </p>
           <div className="flex gap-2">
@@ -292,7 +297,7 @@ const AdminUsersPage = () => {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeModal} />
           <div className="relative card w-full max-w-md max-h-[90vh] overflow-y-auto p-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-100">
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 {modal === 'create' ? 'Add New User' : 'Edit User'}
               </h2>
               <button onClick={closeModal} className="btn-ghost p-1 rounded-lg transition-colors">
@@ -368,13 +373,13 @@ const AdminUsersPage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-100">Delete User</h3>
-                <p className="text-sm text-slate-400">This action cannot be undone</p>
+                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Delete User</h3>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This action cannot be undone</p>
               </div>
             </div>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               Are you sure you want to permanently delete{' '}
-              <span className="font-semibold text-white">{deleteTarget.name}</span>?
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{deleteTarget.name}</span>?
             </p>
             <div className="flex gap-3 pt-1">
               <button

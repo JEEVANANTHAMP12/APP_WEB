@@ -94,10 +94,10 @@ const StaffQRVerifyPage = () => {
           {/* Items */}
           {order.items && (
             <div>
-              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Items</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Items</p>
               <div className="space-y-1">
                 {order.items.map((/** @type {any} */ item, /** @type {number} */ i) => (
-                  <div key={i} className="flex justify-between text-sm text-slate-300">
+                  <div key={i} className="flex justify-between text-sm" style={{ color: 'var(--text-secondary)' }}>
                     <span>{item.name} × {item.quantity}</span>
                     <span className="text-slate-400">₹{item.price * item.quantity}</span>
                   </div>

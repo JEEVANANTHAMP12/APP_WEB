@@ -5,12 +5,35 @@ const validate = require('../middlewares/validate');
 const { protect } = require('../middlewares/auth');
 const { studentGuard } = require('../middlewares/roleGuard');
 const {
+  sendOtp,
+  resendOtp,
   register,
   login,
   getMe,
   updateProfile,
   changePassword,
 } = require('../controllers/authController');
+
+// Send OTP
+router.post(
+  '/send-otp',
+  [
+    body('email').trim().toLowerCase().isEmail().withMessage('Valid email required'),
+    body('name').optional().trim(),
+    validate,
+  ],
+  sendOtp
+);
+
+// Resend OTP
+router.post(
+  '/resend-otp',
+  [
+    body('email').trim().toLowerCase().isEmail().withMessage('Valid email required'),
+    validate,
+  ],
+  resendOtp
+);
 
 // Register with comprehensive validation
 router.post(
@@ -38,6 +61,9 @@ router.post(
       .withMessage('Password must contain at least one uppercase letter')
       .matches(/[0-9]/)
       .withMessage('Password must contain at least one number'),
+    body('otp')
+      .trim().notEmpty().withMessage('OTP is required')
+      .isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
     body('phone')
       .optional()
       .trim()

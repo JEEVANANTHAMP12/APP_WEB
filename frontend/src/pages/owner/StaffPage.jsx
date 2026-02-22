@@ -56,6 +56,7 @@ const StaffPage = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!canteenId) { toast.error('No canteen assigned to your account yet.'); return; }
     setSubmitting(true);
     try {
       if (modal === 'create') {
@@ -102,7 +103,7 @@ const StaffPage = () => {
       ) : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full min-w-[820px]">
-            <thead className="border-b border-white/10">
+            <thead style={{ borderBottom: '1px solid var(--border-color)' }}>
               <tr>
                 {['Name', 'Email', 'Phone', 'Date of Birth', 'Age', 'Hometown', 'Status', 'Actions'].map((h) => (
                   <th key={h} className="table-header">{h}</th>
@@ -111,9 +112,12 @@ const StaffPage = () => {
             </thead>
             <tbody>
               {staff.map((s) => (
-                <tr key={s._id} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="table-cell font-medium text-white">{s.name}</td>
-                  <td className="table-cell text-slate-400">{s.email}</td>
+                <tr key={s._id} className="transition-colors"
+                     style={{ borderBottom: '1px solid var(--border-color)' }}
+                     onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <td className="table-cell font-semibold" style={{ color: 'var(--text-primary)' }}>{s.name}</td>
+                  <td className="table-cell" style={{ color: 'var(--text-secondary)' }}>{s.email}</td>
                   <td className="table-cell">{s.phone || '—'}</td>
                   <td className="table-cell">{formatDOB(s.date_of_birth)}</td>
                   <td className="table-cell">{calcAge(s.date_of_birth)}</td>

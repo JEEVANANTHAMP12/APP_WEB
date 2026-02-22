@@ -88,14 +88,17 @@ const getCanteenAnalytics = asyncHandler(async (req, res) => {
   const Order = require('../models/Order');
   const canteenId = req.params.id;
 
+  const mongoose = require('mongoose');
+  const { ObjectId } = mongoose.Types;
+
   const [totalOrders, revenueData, statusBreakdown] = await Promise.all([
     Order.countDocuments({ canteen_id: canteenId }),
     Order.aggregate([
-      { $match: { canteen_id: require('mongoose').Types.ObjectId(canteenId), payment_status: 'paid' } },
+      { $match: { canteen_id: new ObjectId(canteenId), payment_status: 'paid' } },
       { $group: { _id: null, total: { $sum: '$net_amount' } } },
     ]),
     Order.aggregate([
-      { $match: { canteen_id: require('mongoose').Types.ObjectId(canteenId) } },
+      { $match: { canteen_id: new ObjectId(canteenId) } },
       { $group: { _id: '$order_status', count: { $sum: 1 } } },
     ]),
   ]);
@@ -103,7 +106,7 @@ const getCanteenAnalytics = asyncHandler(async (req, res) => {
   const last7Days = await Order.aggregate([
     {
       $match: {
-        canteen_id: require('mongoose').Types.ObjectId(canteenId),
+        canteen_id: new ObjectId(canteenId),
         createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
     },

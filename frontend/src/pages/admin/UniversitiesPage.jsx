@@ -95,25 +95,29 @@ const AdminUniversitiesPage = () => {
               <tbody>
                 {universities.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center text-slate-500 py-14">
+                    <td colSpan={5} className="text-center py-14" style={{ color: 'var(--text-muted)' }}>
                       <div className="text-3xl mb-2">🎓</div>
                       No universities yet
                     </td>
                   </tr>
                 ) : universities.map((u, i) => (
-                  <tr key={u._id} className={`border-t border-white/5 hover:bg-white/[0.02] transition-colors animate-slide-up delay-${Math.min((i + 1) * 100, 500)}`}>
+                  <tr key={u._id} className={`transition-colors animate-slide-up delay-${Math.min((i + 1) * 100, 500)}`}
+                       style={{ borderTop: '1px solid var(--border-color)' }}
+                       onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                     <td className="table-cell">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
                           {u.code?.slice(0, 2)}
                         </div>
-                        <span className="font-medium text-slate-200">{u.name}</span>
+                        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{u.name}</span>
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className="text-xs font-mono bg-slate-700/60 text-slate-300 px-2 py-1 rounded-md uppercase">{u.code}</span>
+                      <span className="text-xs font-mono px-2 py-1 rounded-md uppercase"
+                            style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>{u.code}</span>
                     </td>
-                    <td className="table-cell text-slate-400 text-sm">
+                    <td className="table-cell text-sm" style={{ color: 'var(--text-secondary)' }}>
                       {[u.location?.city, u.location?.state].filter(Boolean).join(', ') || '—'}
                     </td>
                     <td className="table-cell">
@@ -123,7 +127,10 @@ const AdminUniversitiesPage = () => {
                     </td>
                     <td className="table-cell">
                       <div className="flex gap-2">
-                        <button onClick={() => openEdit(u)} className="text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 px-3 py-1.5 rounded-lg font-semibold transition-colors">Edit</button>
+                        <button onClick={() => openEdit(u)} className="text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                                style={{ background: 'rgba(79,70,229,0.1)', color: '#4F46E5' }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(79,70,229,0.18)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(79,70,229,0.1)'}>Edit</button>
                         <button onClick={() => handleDelete(u._id)} className="btn-danger text-xs py-1.5 px-3">Delete</button>
                       </div>
                     </td>
@@ -140,8 +147,8 @@ const AdminUniversitiesPage = () => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="card w-full max-w-md animate-scale-in">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-100">{editing ? 'Edit University' : 'Add University'}</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-200 text-xl leading-none transition-colors">✕</button>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{editing ? 'Edit University' : 'Add University'}</h2>
+              <button onClick={() => setShowModal(false)} className="btn-ghost btn-icon text-xl leading-none">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

@@ -10,7 +10,7 @@ const STATUS_FLOW = {
   placed:    { next: 'confirmed', label: 'Accept',   color: 'bg-blue-500 hover:bg-blue-600' },
   confirmed: { next: 'preparing', label: 'Preparing', color: 'bg-indigo-500 hover:bg-indigo-600' },
   preparing: { next: 'ready',    label: 'Mark Ready', color: 'bg-emerald-500 hover:bg-emerald-600' },
-  ready:     { next: 'picked_up',label: 'Picked Up', color: 'bg-slate-500 hover:bg-slate-600' },
+  ready:     { next: 'picked_up', label: 'Picked Up',  color: 'bg-slate-500/20 text-slate-500 hover:bg-slate-500/30' },
 };
 
 const FILTERS = ['placed', 'confirmed', 'preparing', 'ready', 'picked_up', 'cancelled', ''];

@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const Review = require('../models/Review');
 const Canteen = require('../models/Canteen');
 const Order = require('../models/Order');
@@ -33,7 +34,7 @@ const addReview = asyncHandler(async (req, res) => {
 
   // Recalculate canteen rating
   const stats = await Review.aggregate([
-    { $match: { canteen_id: require('mongoose').Types.ObjectId(canteen_id) } },
+    { $match: { canteen_id: new mongoose.Types.ObjectId(canteen_id) } },
     { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
   ]);
 

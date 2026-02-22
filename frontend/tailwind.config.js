@@ -42,12 +42,12 @@ export default {
         display: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'sans-serif'],
       },
       boxShadow: {
-        'brand':    '0 4px 16px rgba(99,91,255,0.15)',
-        'brand-lg': '0 20px 50px rgba(99,91,255,0.2)',
-        'glow':     '0 0 30px rgba(99,91,255,0.3)',
+        'brand':    '0 4px 16px rgba(79,70,229,0.18)',
+        'brand-lg': '0 20px 50px rgba(79,70,229,0.25)',
+        'glow':     '0 0 30px rgba(79,70,229,0.35)',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 55%, #9333EA 100%)',
       },
       transitionDuration: {
         '250': '250ms',

@@ -79,17 +79,17 @@ const EarningsPage = () => {
       {/* Order status breakdown */}
       {breakdown.length > 0 && (
         <div className="card">
-          <h3 className="font-bold text-white mb-4">Order Status Breakdown</h3>
+          <h3 className="font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Order Status Breakdown</h3>
           <div className="space-y-3">
             {breakdown.map((s) => {
               const pct = analytics.total_orders > 0 ? Math.round((s.count / analytics.total_orders) * 100) : 0;
               return (
                 <div key={s._id}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-slate-300 capitalize">{s._id.replace('_', ' ')}</span>
-                    <span className="text-white font-semibold">{s.count} ({pct}%)</span>
+                    <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{s._id.replace('_', ' ')}</span>
+                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{s.count} ({pct}%)</span>
                   </div>
-                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
                     <div className="h-full bg-brand-gradient rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>

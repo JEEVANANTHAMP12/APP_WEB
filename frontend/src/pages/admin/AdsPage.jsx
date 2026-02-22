@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import CustomSelect from '../../components/common/CustomSelect';
+import ImageUpload from '../../components/common/ImageUpload';
 import { adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -96,21 +97,22 @@ const AdminAdsPage = () => {
           {ads.map((ad, i) => (
             <div key={ad._id} className={`card card-hover flex gap-4 animate-slide-up delay-${Math.min((i + 1) * 100, 500)}`}>
               {ad.image ? (
-                <img src={ad.image} alt={ad.title} className="w-20 h-20 object-cover rounded-xl flex-shrink-0 bg-slate-700" />
+                <img src={ad.image} alt={ad.title} className="w-20 h-20 object-cover rounded-xl flex-shrink-0" style={{ background: 'var(--bg-elevated)' }} />
               ) : (
-                <div className="w-20 h-20 rounded-xl bg-slate-700/60 flex items-center justify-center text-2xl flex-shrink-0">📢</div>
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: 'var(--bg-elevated)' }}>📢</div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-slate-100 truncate">{ad.title}</p>
+                  <p className="font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{ad.title}</p>
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${ad.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
                     {ad.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1 capitalize ${POSITION_COLORS[ad.position] || 'bg-slate-700 text-slate-400'}`}>
+                <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1 capitalize ${POSITION_COLORS[ad.position] || ''}`}
+                      style={!POSITION_COLORS[ad.position] ? { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' } : {}}>
                   {ad.position?.replace(/_/g, ' ')}
                 </span>
-                <p className="text-xs text-slate-500 mt-1.5">{formatDate(ad.start_date)} → {formatDate(ad.end_date)}</p>
+                <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>{formatDate(ad.start_date)} → {formatDate(ad.end_date)}</p>
                 {ad.link && (
                   <a href={ad.link} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 truncate block mt-1 transition-colors">{ad.link}</a>
                 )}
@@ -129,8 +131,8 @@ const AdminAdsPage = () => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="card w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-100">{editing ? 'Edit Advertisement' : 'New Advertisement'}</h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-200 text-xl leading-none transition-colors">✕</button>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{editing ? 'Edit Advertisement' : 'New Advertisement'}</h2>
+              <button onClick={() => setShowModal(false)} className="btn-ghost btn-icon text-xl leading-none">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -138,11 +140,11 @@ const AdminAdsPage = () => {
                 <input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="Ad title..." />
               </div>
               <div>
-                <label className="input-label">Image URL</label>
-                <input className="input" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
-                {form.image && (
-                  <img src={form.image} alt="preview" className="mt-2 h-24 w-full object-cover rounded-xl bg-slate-700" onError={(e) => e.target.style.display = 'none'} />
-                )}
+                <ImageUpload
+                  value={form.image}
+                  onChange={(v) => setForm({ ...form, image: v })}
+                  label="Ad Image"
+                />
               </div>
               <div>
                 <label className="input-label">Link (optional)</label>

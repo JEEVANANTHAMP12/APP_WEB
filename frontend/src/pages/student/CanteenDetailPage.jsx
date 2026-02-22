@@ -2,12 +2,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { canteenAPI, menuAPI, reviewAPI } from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/common/Loading';
+import { ShieldX } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CanteenDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
   const [canteen, setCanteen] = useState(null);
   const [menu, setMenu] = useState({});
@@ -35,7 +38,25 @@ const CanteenDetailPage = () => {
   }, [id]);
 
   if (loading) return <Loading />;
-  if (!canteen) return <div className="text-center py-20 text-slate-400">Canteen not found</div>;
+  if (!canteen) return <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>Canteen not found</div>;
+
+  // Block ordering if canteen belongs to a different university
+  const studentUniId = user?.university_id?._id || user?.university_id || '';
+  const canteenUniId = canteen.university_id?._id || canteen.university_id || '';
+  const isSameUniversity = !studentUniId || !canteenUniId || String(studentUniId) === String(canteenUniId);
+
+  if (!isSameUniversity) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-20 space-y-4">
+        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.1)' }}>
+          <ShieldX size={28} className="text-red-400" />
+        </div>
+        <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Not available for your university</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This canteen belongs to a different university. You can only order from canteens at your campus.</p>
+        <button onClick={() => navigate('/student/canteens')} className="btn-primary mx-auto">Back to My Canteens</button>
+      </div>
+    );
+  }
 
   const filteredMenu = Object.entries(menu).reduce((acc, [cat, items]) => {
     const filtered = items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()));
@@ -63,24 +84,24 @@ const CanteenDetailPage = () => {
         <div className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">{canteen.name}</h1>
-              {canteen.description && <p className="text-slate-400 mt-1">{canteen.description}</p>}
-              <p className="text-sm text-slate-500 mt-2">🎓 {canteen.university_id?.name}</p>
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{canteen.name}</h1>
+              {canteen.description && <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>{canteen.description}</p>}
+              <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>🎓 {canteen.university_id?.name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
             <div className="flex items-center gap-1.5">
               <span className="text-yellow-400">★</span>
-              <span className="font-semibold text-white">{canteen.rating}</span>
-              <span className="text-slate-400 text-sm">({canteen.total_reviews} reviews)</span>
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{canteen.rating}</span>
+              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>({canteen.total_reviews} reviews)</span>
             </div>
-            <span className="text-slate-400 text-sm">⏱️ {canteen.opening_time} – {canteen.closing_time}</span>
+            <span className="text-sm" style={{ color: 'var(--text-muted)' }}>⏱️ {canteen.opening_time} – {canteen.closing_time}</span>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/10 w-fit">
+      <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-color)' }}>
         {['menu', 'reviews'].map((t) => (
           <button
             key={t}
@@ -134,7 +155,7 @@ const CanteenDetailPage = () => {
                 <div key={category}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-1 h-5 bg-brand-gradient rounded-full" />
-                    <h3 className="font-bold text-white">{category}</h3>
+                    <h3 className="font-bold" style={{ color: 'var(--text-primary)' }}>{category}</h3>
                   </div>
                   <div className="space-y-3">
                     {items.map((item) => {
@@ -145,15 +166,15 @@ const CanteenDetailPage = () => {
                             {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : <span className="text-2xl">🍱</span>}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-white">{item.name}</h4>
-                            {item.description && <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{item.description}</p>}
+                            <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{item.name}</h4>
+                            {item.description && <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--text-muted)' }}>{item.description}</p>}
                             <p className="text-sm font-bold text-indigo-400 mt-1">₹{item.price}</p>
                           </div>
                           {item.availability ? (
                             qty > 0 ? (
                               <div className="flex items-center gap-2 shrink-0">
                                 <button onClick={() => updateQuantity(item._id, qty - 1)} className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center transition-all">−</button>
-                                <span className="w-5 text-center font-bold text-white">{qty}</span>
+                                <span className="w-5 text-center font-bold" style={{ color: 'var(--text-primary)' }}>{qty}</span>
                                 <button onClick={() => updateQuantity(item._id, qty + 1)} className="w-8 h-8 rounded-lg bg-brand-gradient text-white font-bold flex items-center justify-center shadow-brand transition-all">+</button>
                               </div>
                             ) : (
@@ -177,8 +198,8 @@ const CanteenDetailPage = () => {
           {reviews.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-5xl mb-3">⭐</div>
-              <p className="text-white font-medium">No reviews yet</p>
-              <p className="text-slate-400 text-sm mt-1">Be the first to review!</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>No reviews yet</p>
+              <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Be the first to review!</p>
             </div>
           ) : reviews.map((r) => (
             <div key={r._id} className="card">
@@ -187,7 +208,7 @@ const CanteenDetailPage = () => {
                   <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-sm">
                     {r.user_id?.name?.[0]?.toUpperCase()}
                   </div>
-                  <span className="font-medium text-white">{r.user_id?.name}</span>
+                  <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{r.user_id?.name}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {[1,2,3,4,5].map((s) => (
@@ -195,8 +216,8 @@ const CanteenDetailPage = () => {
                   ))}
                 </div>
               </div>
-              {r.comment && <p className="text-slate-300 text-sm">{r.comment}</p>}
-              <p className="text-slate-500 text-xs mt-2">{new Date(r.createdAt).toLocaleDateString()}</p>
+              {r.comment && <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{r.comment}</p>}
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>{new Date(r.createdAt).toLocaleDateString()}</p>
             </div>
           ))}
         </div>

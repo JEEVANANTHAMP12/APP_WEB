@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { ClipboardList, QrCode, Utensils, Menu, X, Sun, Moon, LogOut, UserCog } from 'lucide-react';
+import { ClipboardList, QrCode, Utensils, Menu, X, Sun, Moon, LogOut, UserCog, AlertTriangle, UserCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -9,6 +9,7 @@ const NAV = [
   { to: '/staff/orders',    icon: ClipboardList, label: 'Live Orders' },
   { to: '/staff/qr-verify', icon: QrCode,        label: 'QR Verify'  },
   { to: '/staff/menu',      icon: Utensils,      label: 'Menu Items' },
+  { to: '/staff/profile',   icon: UserCircle,    label: 'My Profile' },
 ];
 
 const SidebarContent = ({ onClose }) => {
@@ -79,6 +80,7 @@ const SidebarContent = ({ onClose }) => {
 
 const StaffLayout = () => {
   const { isDark, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -116,6 +118,12 @@ const StaffLayout = () => {
         </header>
 
         <main className="flex-1 overflow-auto">
+          {!user?.canteen_id && (
+            <div className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-amber-800 bg-amber-100 border-b border-amber-200 dark:text-amber-300 dark:bg-amber-900/30 dark:border-amber-800/40">
+              <AlertTriangle size={15} className="shrink-0" />
+              <span>No canteen assigned — contact your canteen owner to get access.</span>
+            </div>
+          )}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 animate-fade-in">
             <Outlet />
           </div>

@@ -5,10 +5,20 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Lazy-init: only create the Razorpay instance when keys are present
+let razorpay = null;
+const getRazorpay = () => {
+  if (!razorpay) {
+    if (!process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.startsWith('rzp_test_xxx')) {
+      return null;
+    }
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpay;
+};
 
 // @desc    Create Razorpay order
 // @route   POST /api/payment/create-order
@@ -41,7 +51,9 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     },
   };
 
-  const razorpayOrder = await razorpay.orders.create(options);
+  const rz = getRazorpay();
+  if (!rz) return errorResponse(res, 503, 'Payment gateway not configured');
+  const razorpayOrder = await rz.orders.create(options);
 
   order.razorpay_order_id = razorpayOrder.id;
   await order.save();
@@ -189,7 +201,9 @@ const walletTopup = asyncHandler(async (req, res) => {
     },
   };
 
-  const razorpayOrder = await razorpay.orders.create(options);
+  const rz = getRazorpay();
+  if (!rz) return errorResponse(res, 503, 'Payment gateway not configured');
+  const razorpayOrder = await rz.orders.create(options);
 
   return successResponse(res, 200, 'Wallet order created', {
     razorpay_order_id: razorpayOrder.id,

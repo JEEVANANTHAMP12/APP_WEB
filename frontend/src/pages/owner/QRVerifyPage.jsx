@@ -92,10 +92,10 @@ const QRVerifyPage = () => {
 
           {/* Items */}
           <div>
-            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Items</p>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Items</p>
             <div className="space-y-1">
               {order.items?.map((item, i) => (
-                <div key={i} className="flex justify-between text-sm text-slate-300">
+                <div key={i} className="flex justify-between text-sm" style={{ color: 'var(--text-secondary)' }}>
                   <span>{item.name} × {item.quantity}</span>
                   <span>₹{item.price * item.quantity}</span>
                 </div>
