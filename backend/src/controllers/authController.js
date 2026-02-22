@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const generateTokens = require('../utils/generateToken');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
-const { sendOtpEmail } = require('../utils/mail');
+const { sendOtpEmail, sendWelcomeEmail } = require('../utils/mail');
 
 /* ─── In-memory OTP store  { email → { otp, expiresAt, name } } ─ */
 const otpStore = new Map();
@@ -105,6 +105,13 @@ const register = asyncHandler(async (req, res) => {
 
   const user = await User.create(userData);
   const { accessToken } = generateTokens(user._id);
+
+  // Send welcome email (fire-and-forget — don't block the response)
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    sendWelcomeEmail(user.email, user.name, user.role).catch(err =>
+      console.error('Welcome mail error:', err.message)
+    );
+  }
 
   return successResponse(res, 201, 'Registration successful', {
     token: accessToken,

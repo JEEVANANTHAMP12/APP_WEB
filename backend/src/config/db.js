@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
+    const isDev = process.env.NODE_ENV !== 'production';
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      retryWrites: true,
-      w: 'majority',
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       maxPoolSize: 10,
       tls: true,
-      tlsAllowInvalidCertificates: process.env.NODE_ENV !== 'production',
+      tlsAllowInvalidCertificates: isDev,
+      tlsAllowInvalidHostnames: isDev,
     });
     console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host}`);
   } catch (error) {
