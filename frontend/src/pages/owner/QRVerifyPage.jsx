@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { orderAPI } from '../../services/api';
 import StatusBadge from '../../components/common/StatusBadge';
 import toast from 'react-hot-toast';
@@ -29,84 +29,89 @@ const QRVerifyPage = () => {
     try {
       await orderAPI.updateStatus(order._id, 'picked_up');
       setDone(true);
-      toast.success('Order marked as picked up!');
+      toast.success('Order marked as picked up! ✅');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update status');
+      toast.error(err.response?.data?.message || 'Failed');
     } finally { setMarking(false); }
   };
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">QR Verification</h1>
+    <div className="max-w-lg mx-auto space-y-5 animate-fade-in">
+      <div>
+        <h1 className="page-title">QR Verification</h1>
+        <p className="page-subtitle">Scan or paste a student order code to confirm pickup</p>
+      </div>
 
+      {/* Input form */}
       <div className="card space-y-4">
-        <p className="text-sm text-gray-500">
-          Scan or paste the order QR code from the student's app to verify and confirm pickup.
-        </p>
-        <form onSubmit={handleVerify} className="flex gap-2">
+        <div className="flex items-center justify-center h-32 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-dashed border-orange-500/30">
+          <div className="text-center">
+            <span className="text-4xl block mb-2">📷</span>
+            <p className="text-slate-400 text-sm">Manual code entry below</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleVerify} className="flex gap-3">
           <input
-            className="input flex-1"
-            placeholder="Paste QR code here..."
+            className="input flex-1 font-mono"
+            placeholder="Paste QR code or order code..."
             value={qrInput}
             onChange={(e) => setQrInput(e.target.value)}
           />
-          <button type="submit" disabled={loading} className="btn-primary px-5">
+          <button type="submit" disabled={loading || !qrInput.trim()} className="btn-primary shrink-0">
             {loading ? '...' : 'Verify'}
           </button>
         </form>
       </div>
 
+      {/* Order Result */}
       {order && (
-        <div className="card space-y-4">
+        <div className={`card space-y-4 border-2 transition-all ${done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-orange-500/30'}`}>
           <div className="flex items-center justify-between">
-            <h2 className="font-bold text-gray-800">Order #{order._id.slice(-6).toUpperCase()}</h2>
+            <div>
+              <h2 className="font-bold text-white text-lg">#{order.order_number}</h2>
+              <p className="text-slate-400 text-sm mt-0.5">{new Date(order.createdAt).toLocaleString()}</p>
+            </div>
             <StatusBadge status={done ? 'picked_up' : order.order_status} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p className="text-gray-400">Student</p>
-              <p className="font-semibold text-gray-800">{order.user_id?.name || '—'}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Payment</p>
-              <p className="font-semibold capitalize text-gray-800">{order.payment_method}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Total</p>
-              <p className="font-semibold text-gray-800">₹{order.total_amount}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Payment Status</p>
-              <p className={`font-semibold capitalize ${order.payment_status === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
-                {order.payment_status}
-              </p>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ['Student', order.user_id?.name || '—'],
+              ['Payment', order.payment_method?.replace('_', ' ')],
+              ['Total', `₹${order.total_amount}`],
+              ['Pay Status', order.payment_status],
+            ].map(([label, val]) => (
+              <div key={label} className="bg-white/5 rounded-xl p-3">
+                <p className="text-xs text-slate-400 mb-1">{label}</p>
+                <p className="font-semibold text-white text-sm capitalize">{val}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="border-t pt-3">
-            <p className="text-xs font-semibold uppercase text-gray-400 mb-2">Items</p>
-            <ul className="space-y-1">
+          {/* Items */}
+          <div>
+            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Items</p>
+            <div className="space-y-1">
               {order.items?.map((item, i) => (
-                <li key={i} className="flex justify-between text-sm text-gray-700">
+                <div key={i} className="flex justify-between text-sm text-slate-300">
                   <span>{item.name} × {item.quantity}</span>
                   <span>₹{item.price * item.quantity}</span>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {!done && order.order_status === 'ready' ? (
-            <button onClick={handleMarkPickedUp} disabled={marking} className="btn-primary w-full">
-              {marking ? 'Marking...' : '✓ Confirm Pickup'}
+          {!done && order.order_status === 'ready' && (
+            <button onClick={handleMarkPickedUp} disabled={marking} className="btn-primary w-full py-3">
+              {marking ? 'Marking...' : '✅ Mark as Picked Up'}
             </button>
-          ) : done ? (
-            <div className="bg-green-50 text-green-700 text-center py-3 rounded-xl text-sm font-semibold">
-              ✓ Order successfully picked up!
-            </div>
-          ) : (
-            <div className="bg-yellow-50 text-yellow-700 text-center py-3 rounded-xl text-sm font-semibold">
-              Order is not yet ready for pickup (status: {order.order_status})
+          )}
+
+          {done && (
+            <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-4 text-center">
+              <span className="text-3xl">✅</span>
+              <p className="text-emerald-300 font-semibold mt-2">Order Successfully Picked Up!</p>
             </div>
           )}
         </div>

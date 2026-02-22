@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { orderAPI } from '../../services/api';
@@ -7,11 +7,14 @@ import Loading from '../../components/common/Loading';
 import toast from 'react-hot-toast';
 
 const STATUS_FLOW = {
-  placed: { next: 'confirmed', label: 'Accept Order', color: 'bg-blue-500 hover:bg-blue-600' },
-  confirmed: { next: 'preparing', label: 'Start Preparing', color: 'bg-indigo-500 hover:bg-indigo-600' },
-  preparing: { next: 'ready', label: 'Mark Ready', color: 'bg-green-500 hover:bg-green-600' },
-  ready: { next: 'picked_up', label: 'Mark Picked Up', color: 'bg-gray-500 hover:bg-gray-600' },
+  placed:    { next: 'confirmed', label: 'Accept',   color: 'bg-blue-500 hover:bg-blue-600' },
+  confirmed: { next: 'preparing', label: 'Preparing', color: 'bg-indigo-500 hover:bg-indigo-600' },
+  preparing: { next: 'ready',    label: 'Mark Ready', color: 'bg-emerald-500 hover:bg-emerald-600' },
+  ready:     { next: 'picked_up',label: 'Picked Up', color: 'bg-slate-500 hover:bg-slate-600' },
 };
+
+const FILTERS = ['placed', 'confirmed', 'preparing', 'ready', 'picked_up', 'cancelled', ''];
+const FILTER_LABELS = { '': 'All', placed: 'New', confirmed: 'Confirmed', preparing: 'Preparing', ready: 'Ready', picked_up: 'Done', cancelled: 'Cancelled' };
 
 const OrdersPage = () => {
   const { user } = useAuth();
@@ -25,6 +28,7 @@ const OrdersPage = () => {
 
   const fetchOrders = useCallback(() => {
     if (!canteenId) return;
+    setLoading(true);
     orderAPI
       .getCanteenOrders(canteenId, { status: filter || undefined, limit: 50 })
       .then(({ data }) => setOrders(data.data))
@@ -32,15 +36,12 @@ const OrdersPage = () => {
       .finally(() => setLoading(false));
   }, [canteenId, filter]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  // Live new order notifications
   useEffect(() => {
     if (!on) return;
     const handler = (data) => {
-      toast.success(`🛎️ New Order #${data.order_number}!`, { duration: 5000 });
+      toast.success(`🛎️ New Order #${data.order_number}!`, { duration: 6000, icon: '🔔' });
       fetchOrders();
     };
     on('new_order', handler);
@@ -51,15 +52,11 @@ const OrdersPage = () => {
     setUpdating(orderId);
     try {
       await orderAPI.updateStatus(orderId, newStatus);
-      setOrders((prev) =>
-        prev.map((o) => (o._id === orderId ? { ...o, order_status: newStatus } : o))
-      );
-      toast.success(`Order updated to: ${newStatus}`);
+      setOrders((prev) => prev.map((o) => o._id === orderId ? { ...o, order_status: newStatus } : o));
+      toast.success(`Order → ${newStatus.replace('_', ' ')}`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Update failed');
-    } finally {
-      setUpdating(null);
-    }
+    } finally { setUpdating(null); }
   };
 
   const handleCancel = async (orderId) => {
@@ -74,111 +71,94 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Live Orders</h1>
-        <button onClick={fetchOrders} className="btn-secondary text-sm">
-          🔄 Refresh
-        </button>
+        <div>
+          <h1 className="page-title">Live Orders</h1>
+          <p className="page-subtitle">{orders.length} orders</p>
+        </div>
+        <button onClick={fetchOrders} className="btn-secondary text-sm">↻ Refresh</button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {['', 'placed', 'confirmed', 'preparing', 'ready', 'picked_up', 'cancelled'].map((s) => (
+      {/* Filter tabs */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        {FILTERS.map((f) => (
           <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              filter === s
-                ? 'bg-primary-500 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              filter === f
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            {s ? s.replace('_', ' ').toUpperCase() : 'ALL'}
+            {FILTER_LABELS[f]}
           </button>
         ))}
       </div>
 
-      {loading ? (
-        <Loading />
-      ) : orders.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <div className="text-5xl mb-3">🛎️</div>
-          <p>No {filter || ''} orders</p>
+      {loading ? <Loading /> : orders.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-5xl mb-4">📭</div>
+          <p className="text-white font-medium">No orders here</p>
+          <p className="text-slate-400 text-sm mt-1">New orders will appear in real-time</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {orders.map((order) => {
-            const flow = STATUS_FLOW[order.order_status];
-            return (
-              <div key={order._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold text-gray-800">#{order.order_number}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(order.createdAt).toLocaleTimeString()}
-                    </p>
-                  </div>
-                  <StatusBadge status={order.order_status} />
-                </div>
-
-                {/* Customer */}
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-sm font-medium text-gray-700">
-                    👤 {order.user_id?.name}
-                  </p>
-                  {order.user_id?.phone && (
-                    <p className="text-xs text-gray-400 mt-0.5">📞 {order.user_id.phone}</p>
-                  )}
-                </div>
-
-                {/* Items */}
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {orders.map((order) => (
+            <div key={order._id} className="card space-y-3">
+              <div className="flex items-start justify-between gap-2">
                 <div>
-                  {order.items.map((item, i) => (
-                    <div key={i} className="flex justify-between text-sm py-1 border-b border-gray-50 last:border-0">
-                      <span className="text-gray-600">
-                        {item.name} × {item.quantity}
-                      </span>
-                      <span className="font-medium">₹{item.price * item.quantity}</span>
-                    </div>
-                  ))}
-                  <div className="flex justify-between font-bold text-gray-900 mt-2 pt-2 border-t border-gray-100">
-                    <span>Total</span>
-                    <span>₹{order.total_amount}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white">#{order.order_number}</span>
+                    <StatusBadge status={order.order_status} />
                   </div>
+                  <p className="text-sm text-slate-300 mt-1">{order.user_id?.name}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{new Date(order.createdAt).toLocaleTimeString()}</p>
                 </div>
-
-                {/* Special instructions */}
-                {order.special_instructions && (
-                  <div className="bg-yellow-50 rounded-xl p-3 text-xs text-yellow-700">
-                    📝 {order.special_instructions}
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  {flow && (
-                    <button
-                      disabled={updating === order._id}
-                      onClick={() => handleStatusUpdate(order._id, flow.next)}
-                      className={`flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition-all ${flow.color} disabled:opacity-50`}
-                    >
-                      {updating === order._id ? '...' : flow.label}
-                    </button>
-                  )}
-                  {['placed', 'confirmed'].includes(order.order_status) && (
-                    <button
-                      onClick={() => handleCancel(order._id)}
-                      className="px-3 py-2.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 text-sm font-semibold"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                <p className="font-bold text-white text-lg shrink-0">₹{order.total_amount}</p>
               </div>
-            );
-          })}
+
+              {/* Items preview */}
+              <div className="space-y-1">
+                {order.items?.slice(0, 3).map((item, i) => (
+                  <div key={i} className="flex justify-between text-xs text-slate-400">
+                    <span>{item.name} × {item.quantity}</span>
+                    <span>₹{item.price * item.quantity}</span>
+                  </div>
+                ))}
+                {order.items?.length > 3 && <p className="text-xs text-slate-500">+{order.items.length - 3} more items</p>}
+              </div>
+
+              {order.special_instructions && (
+                <p className="text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-lg px-3 py-2">
+                  📝 {order.special_instructions}
+                </p>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-2 pt-1 border-t border-white/10">
+                {STATUS_FLOW[order.order_status] && (
+                  <button
+                    onClick={() => handleStatusUpdate(order._id, STATUS_FLOW[order.order_status].next)}
+                    disabled={updating === order._id}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold text-white transition-all ${STATUS_FLOW[order.order_status].color} disabled:opacity-50`}
+                  >
+                    {updating === order._id ? '...' : STATUS_FLOW[order.order_status].label}
+                  </button>
+                )}
+                {['placed', 'confirmed'].includes(order.order_status) && (
+                  <button
+                    onClick={() => handleCancel(order._id)}
+                    disabled={updating === order._id}
+                    className="py-2 px-3 rounded-xl text-xs font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

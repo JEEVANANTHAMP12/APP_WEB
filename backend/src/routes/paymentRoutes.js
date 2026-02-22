@@ -1,17 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
-const { authorizeRoles } = require('../middlewares/roleCheck');
+const { studentGuard, adminGuard } = require('../middlewares/roleGuard');
 const {
   createRazorpayOrder,
   verifyPayment,
+  payWithWallet,
   walletTopup,
   verifyWalletTopup,
+  getWalletBalance,
+  refundOrder,
 } = require('../controllers/paymentController');
 
-router.post('/create-order', protect, authorizeRoles('student'), createRazorpayOrder);
-router.post('/verify', protect, authorizeRoles('student'), verifyPayment);
-router.post('/wallet/topup', protect, authorizeRoles('student'), walletTopup);
-router.post('/wallet/verify', protect, authorizeRoles('student'), verifyWalletTopup);
+// Order payment endpoints
+router.post('/create-order', protect, studentGuard, createRazorpayOrder);
+router.post('/verify', protect, studentGuard, verifyPayment);
+
+// Wallet endpoints
+router.get('/wallet/balance', protect, studentGuard, getWalletBalance);
+router.post('/wallet/pay', protect, studentGuard, payWithWallet);
+router.post('/wallet/topup', protect, studentGuard, walletTopup);
+router.post('/wallet/verify', protect, studentGuard, verifyWalletTopup);
+
+// Refund endpoint
+router.post('/refund/:orderId', protect, refundOrder);
 
 module.exports = router;

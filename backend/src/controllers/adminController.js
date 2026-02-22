@@ -94,6 +94,45 @@ const getAllUsers = asyncHandler(async (req, res) => {
   return paginatedResponse(res, users, total, page, limit);
 });
 
+// @desc    Admin create user
+// @route   POST /api/admin/users
+// @access  Admin
+const createAdminUser = asyncHandler(async (req, res) => {
+  const { name, email, password, role, phone, university_id } = req.body;
+  if (!name || !email || !password) return errorResponse(res, 400, 'Name, email and password are required');
+  const exists = await User.findOne({ email: email.toLowerCase() });
+  if (exists) return errorResponse(res, 400, 'Email already registered');
+  const hashed = await require('bcryptjs').hash(password, 10);
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
+    password: hashed,
+    role: role || 'student',
+    phone: phone || '',
+    ...(university_id && { university_id }),
+    is_active: true,
+    is_approved: true,
+  });
+  const safe = user.toObject();
+  delete safe.password;
+  return successResponse(res, 201, 'User created', { user: safe });
+});
+
+// @desc    Admin update user
+// @route   PUT /api/admin/users/:id
+// @access  Admin
+const updateAdminUser = asyncHandler(async (req, res) => {
+  const { name, email, role, phone, university_id, is_active, password } = req.body;
+  const update = { name, role, phone, is_active };
+  if (email) update.email = email.toLowerCase();
+  if (university_id !== undefined) update.university_id = university_id || null;
+  if (password) update.password = await require('bcryptjs').hash(password, 10);
+  const user = await User.findByIdAndUpdate(req.params.id, update, { new: true })
+    .populate('university_id', 'name').populate('canteen_id', 'name');
+  if (!user) return errorResponse(res, 404, 'User not found');
+  return successResponse(res, 200, 'User updated', { user });
+});
+
 // @desc    Block / unblock user
 // @route   PATCH /api/admin/users/:id/block
 // @access  Admin
@@ -172,6 +211,41 @@ const updateCanteenStatus = asyncHandler(async (req, res) => {
   return successResponse(res, 200, `Canteen ${status}`, { canteen });
 });
 
+// @desc    Admin create canteen (bypass owner restriction, sets active directly)
+// @route   POST /api/admin/canteens
+// @access  Admin
+const createAdminCanteen = asyncHandler(async (req, res) => {
+  const { owner_id, university_id, name, description, phone, commission_percentage, opening_time, closing_time, status } = req.body;
+  if (!university_id || !name) return errorResponse(res, 400, 'University and name are required');
+  const canteen = await Canteen.create({
+    university_id,
+    owner_id: owner_id || req.user._id,
+    name,
+    description: description || '',
+    phone: phone || '',
+    commission_percentage: commission_percentage ?? 10,
+    opening_time: opening_time || '08:00',
+    closing_time: closing_time || '20:00',
+    status: status || 'active',
+  });
+  if (owner_id) await User.findByIdAndUpdate(owner_id, { canteen_id: canteen._id });
+  const populated = await Canteen.findById(canteen._id)
+    .populate('university_id', 'name')
+    .populate('owner_id', 'name email phone');
+  return successResponse(res, 201, 'Canteen created', { canteen: populated });
+});
+
+// @desc    Admin delete canteen
+// @route   DELETE /api/admin/canteens/:id
+// @access  Admin
+const deleteAdminCanteen = asyncHandler(async (req, res) => {
+  const canteen = await Canteen.findById(req.params.id);
+  if (!canteen) return errorResponse(res, 404, 'Canteen not found');
+  if (canteen.owner_id) await User.findByIdAndUpdate(canteen.owner_id, { $unset: { canteen_id: 1 } });
+  await canteen.deleteOne();
+  return successResponse(res, 200, 'Canteen deleted');
+});
+
 // @desc    Create Advertisement
 // @route   POST /api/admin/ads
 // @access  Admin
@@ -205,16 +279,32 @@ const deleteAd = asyncHandler(async (req, res) => {
   return successResponse(res, 200, 'Ad deleted');
 });
 
+// @desc    Delete user
+// @route   DELETE /api/admin/users/:id
+// @access  Admin
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return errorResponse(res, 404, 'User not found');
+  if (user.role === 'admin') return errorResponse(res, 403, 'Cannot delete admin accounts');
+  await user.deleteOne();
+  return successResponse(res, 200, 'User deleted');
+});
+
 module.exports = {
   getPlatformStats,
   getAllUsers,
+  createAdminUser,
+  updateAdminUser,
   toggleBlockUser,
   approveOwner,
   setCommission,
   getPendingCanteens,
   updateCanteenStatus,
+  createAdminCanteen,
+  deleteAdminCanteen,
   createAd,
   getAds,
   updateAd,
   deleteAd,
+  deleteUser,
 };

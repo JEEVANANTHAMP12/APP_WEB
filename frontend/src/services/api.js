@@ -55,6 +55,9 @@ export const canteenAPI = {
   update: (id, data) => API.put(`/canteens/${id}`, data),
   toggle: (id) => API.patch(`/canteens/${id}/toggle`),
   analytics: (id) => API.get(`/canteens/${id}/analytics`),
+  getStaff: (id) => API.get(`/canteens/${id}/staff`),
+  createStaff: (id, data) => API.post(`/canteens/${id}/staff`, data),
+  updateStaff: (canteenId, staffId, data) => API.put(`/canteens/${canteenId}/staff/${staffId}`, data),
 };
 
 // ─── Menu ─────────────────────────────────────────────
@@ -96,10 +99,16 @@ export const reviewAPI = {
 export const adminAPI = {
   getStats: () => API.get('/admin/stats'),
   getUsers: (params) => API.get('/admin/users', { params }),
+  createUser: (data) => API.post('/admin/users', data),
+  updateUser: (id, data) => API.put(`/admin/users/${id}`, data),
   toggleBlock: (id) => API.patch(`/admin/users/${id}/block`),
+  deleteUser: (id) => API.delete(`/admin/users/${id}`),
   approveOwner: (id) => API.patch(`/admin/owners/${id}/approve`),
   setCommission: (id, pct) => API.patch(`/admin/canteens/${id}/commission`, { commission_percentage: pct }),
   getPendingCanteens: (params) => API.get('/admin/canteens/pending', { params }),
+  createCanteen: (data) => API.post('/admin/canteens', data),
+  editCanteen: (id, data) => API.put(`/canteens/${id}`, data),
+  deleteCanteen: (id) => API.delete(`/admin/canteens/${id}`),
   updateCanteenStatus: (id, status) => API.patch(`/admin/canteens/${id}/status`, { status }),
   getAds: () => API.get('/admin/ads'),
   createAd: (data) => API.post('/admin/ads', data),

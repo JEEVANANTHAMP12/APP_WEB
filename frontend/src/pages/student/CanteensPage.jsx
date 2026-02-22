@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { canteenAPI, universityAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -35,18 +35,23 @@ const CanteensPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Browse Canteens</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="page-title">Browse Canteens</h1>
+        <p className="page-subtitle">{filtered.length} canteens available</p>
+      </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="🔍 Search canteens..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="input flex-1"
-        />
+        <div className="relative flex-1">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input
+            type="text"
+            placeholder="Search canteens..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input pl-9"
+          />
+        </div>
         <select
           value={selectedUni}
           onChange={(e) => setSelectedUni(e.target.value)}
@@ -62,43 +67,39 @@ const CanteensPage = () => {
       {loading ? (
         <Loading />
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <div className="text-5xl mb-3">🔍</div>
-          <p className="font-medium">No canteens found</p>
-          <p className="text-sm mt-1">Try changing your filters</p>
+        <div className="text-center py-20">
+          <div className="text-6xl mb-4">🔍</div>
+          <p className="text-white font-semibold text-lg">No canteens found</p>
+          <p className="text-slate-400 text-sm mt-1">Try changing your filters</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((canteen) => (
+          {filtered.map((canteen, i) => (
             <div
               key={canteen._id}
-              onClick={() => navigate(`/canteens/${canteen._id}`)}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+              onClick={() => navigate(`/student/canteens/${canteen._id}`)}
+              className="card-hover group overflow-hidden animate-slide-up"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
-              <div className="h-44 bg-gradient-to-br from-orange-50 to-primary-50 flex items-center justify-center relative">
+              <div className="h-44 rounded-xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center mb-4 relative">
                 {canteen.image ? (
-                  <img src={canteen.image} alt={canteen.name} className="w-full h-full object-cover" />
+                  <img src={canteen.image} alt={canteen.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <span className="text-7xl">🍽️</span>
+                  <span className="text-5xl">🍽️</span>
                 )}
-                <span className={`absolute top-3 right-3 text-xs px-2 py-1 rounded-full font-semibold ${canteen.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold ${canteen.is_open ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
                   {canteen.is_open ? '● Open' : '● Closed'}
                 </span>
               </div>
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-primary-600 transition-colors">
-                  {canteen.name}
-                </h3>
-                <p className="text-sm text-gray-400 mt-1">
-                  🎓 {canteen.university_id?.name || 'University'}
-                </p>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                  <div className="flex items-center gap-1">
-                    <span className="text-yellow-400 text-sm">★</span>
-                    <span className="text-sm font-semibold text-gray-700">{canteen.rating || '4.0'}</span>
-                  </div>
-                  <span className="text-xs text-gray-400">{canteen.total_orders || 0} orders</span>
+              <h3 className="font-bold text-white text-lg group-hover:text-orange-300 transition-colors">{canteen.name}</h3>
+              {canteen.description && <p className="text-slate-400 text-sm mt-1 line-clamp-2">{canteen.description}</p>}
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-yellow-400">★</span>
+                  <span className="text-white font-semibold text-sm">{canteen.rating}</span>
+                  <span className="text-slate-500 text-xs">({canteen.total_reviews})</span>
                 </div>
+                <span className="text-slate-400 text-xs">⏱️ {canteen.opening_time} – {canteen.closing_time}</span>
               </div>
             </div>
           ))}

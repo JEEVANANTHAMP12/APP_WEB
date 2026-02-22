@@ -48,6 +48,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    date_of_birth: {
+      type: Date,
+      default: null,
+    },
+    hometown: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     is_active: {
       type: Boolean,
       default: true,

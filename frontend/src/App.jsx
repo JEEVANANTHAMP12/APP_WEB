@@ -2,6 +2,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
+
+// Components
+import ErrorBoundary from './components/ErrorBoundary';
+import Navbar from './components/Navbar';
+import Loading from './components/common/Loading';
+import PrivateRoute from './components/common/PrivateRoute';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -37,89 +44,100 @@ import AdminCanteens from './pages/admin/CanteensPage';
 import AdminUniversities from './pages/admin/UniversitiesPage';
 import AdminAds from './pages/admin/AdsPage';
 
-// Guards
-import PrivateRoute from './components/common/PrivateRoute';
-import Loading from './components/common/Loading';
-
 const AppRoutes = () => {
-  const { initialLoading } = useAuth();
+  const { initialLoading, user } = useAuth();
   if (initialLoading) return <Loading fullScreen />;
 
   return (
-    <Routes>
-      {/* Public */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+    <>
+      <Routes>
+        {/* Public */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      {/* Student */}
-      <Route
-        path="/"
-        element={
-          <PrivateRoute roles={['student']}>
-            <StudentLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<HomePage />} />
-        <Route path="canteens" element={<CanteensPage />} />
-        <Route path="canteens/:id" element={<CanteenDetailPage />} />
-        <Route path="cart" element={<CartPage />} />
-        <Route path="checkout" element={<CheckoutPage />} />
-        <Route path="orders" element={<OrdersPage />} />
-        <Route path="orders/:id" element={<OrderDetailPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="wallet" element={<WalletPage />} />
-      </Route>
+        {/* Student */}
+        <Route
+          path="/student"
+          element={
+            <PrivateRoute roles={['student']}>
+              <StudentLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="home" element={<HomePage />} />
+          <Route path="canteens" element={<CanteensPage />} />
+          <Route path="canteens/:id" element={<CanteenDetailPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="orders/:id" element={<OrderDetailPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="wallet" element={<WalletPage />} />
+        </Route>
 
-      {/* Owner / Staff */}
-      <Route
-        path="/owner"
-        element={
-          <PrivateRoute roles={['owner', 'staff']}>
-            <OwnerLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<OwnerDashboard />} />
-        <Route path="menu" element={<MenuManagePage />} />
-        <Route path="orders" element={<OwnerOrdersPage />} />
-        <Route path="profile" element={<CanteenProfilePage />} />
-        <Route path="earnings" element={<EarningsPage />} />
-        <Route path="staff" element={<StaffPage />} />
-        <Route path="qr-verify" element={<QRVerifyPage />} />
-      </Route>
+        {/* Owner / Staff */}
+        <Route
+          path="/owner"
+          element={
+            <PrivateRoute roles={['owner', 'staff']}>
+              <OwnerLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="dashboard" element={<OwnerDashboard />} />
+          <Route path="menu" element={<MenuManagePage />} />
+          <Route path="orders" element={<OwnerOrdersPage />} />
+          <Route path="profile" element={<CanteenProfilePage />} />
+          <Route path="earnings" element={<EarningsPage />} />
+          <Route path="staff" element={<StaffPage />} />
+          <Route path="qr-verify" element={<QRVerifyPage />} />
+        </Route>
 
-      {/* Admin */}
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute roles={['admin']}>
-            <AdminLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<AdminDashboard />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="canteens" element={<AdminCanteens />} />
-        <Route path="universities" element={<AdminUniversities />} />
-        <Route path="ads" element={<AdminAds />} />
-      </Route>
+        {/* Admin */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute roles={['admin']}>
+              <AdminLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="canteens" element={<AdminCanteens />} />
+          <Route path="universities" element={<AdminUniversities />} />
+          <Route path="ads" element={<AdminAds />} />
+        </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        {/* Root path - redirect based on user role */}
+        <Route path="/" element={user ? (
+          user.role === 'admin' ? <Navigate to="/admin/dashboard" replace /> :
+          ['owner', 'staff'].includes(user.role) ? <Navigate to="/owner/dashboard" replace /> :
+          <Navigate to="/student/home" replace />
+        ) : (
+          <Navigate to="/login" replace />
+        )} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to={user ? '/student/home' : '/login'} replace />} />
+      </Routes>
+    </>
   );
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <SocketProvider>
-          <AppRoutes />
-        </SocketProvider>
-      </CartProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <SocketProvider>
+              <AppRoutes />
+            </SocketProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -23,37 +23,33 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
 
   const handlePlaceOrder = async () => {
-    if (cart.length === 0) {
-      toast.error('Cart is empty');
-      return;
-    }
+    if (cart.length === 0) { toast.error('Cart is empty'); return; }
     setLoading(true);
-
     try {
-      // Create order in backend
       const { data: orderData } = await orderAPI.place({
         canteen_id: canteenId,
         items: cart.map((i) => ({ menu_item_id: i._id, quantity: i.quantity })),
         payment_method: paymentMethod,
         special_instructions: instructions,
       });
-
       const order = orderData.data.order;
 
       if (paymentMethod === 'cash_on_pickup') {
         clearCart();
         toast.success('Order placed! Pay at pickup.');
-        navigate(`/orders/${order._id}`);
+        navigate(`/student/orders/${order._id}`);
         return;
       }
 
-      // Razorpay online payment
-      const loaded = await loadRazorpay();
-      if (!loaded) {
-        toast.error('Payment gateway failed to load');
-        setLoading(false);
+      if (paymentMethod === 'wallet') {
+        clearCart();
+        toast.success('Paid from wallet! 🎉');
+        navigate(`/student/orders/${order._id}`);
         return;
       }
+
+      const loaded = await loadRazorpay();
+      if (!loaded) { toast.error('Payment gateway failed'); setLoading(false); return; }
 
       const { data: rzpData } = await paymentAPI.createOrder(order._id);
       const rzp = rzpData.data;
@@ -77,18 +73,12 @@ const CheckoutPage = () => {
             });
             clearCart();
             toast.success('Payment successful! 🎉');
-            navigate(`/orders/${order._id}`);
-          } catch {
-            toast.error('Payment verification failed');
-          }
+            navigate(`/student/orders/${order._id}`);
+          } catch { toast.error('Payment verification failed'); }
         },
-        modal: {
-          ondismiss: () => toast.error('Payment cancelled'),
-        },
+        modal: { ondismiss: () => toast.error('Payment cancelled') },
       };
-
-      const rzpInstance = new window.Razorpay(options);
-      rzpInstance.open();
+      new window.Razorpay(options).open();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Order failed');
     } finally {
@@ -96,71 +86,73 @@ const CheckoutPage = () => {
     }
   };
 
+  const payMethods = [
+    { id: 'online', label: 'Online Payment', desc: 'UPI, card, net banking via Razorpay', icon: '💳' },
+    { id: 'wallet', label: 'Wallet', desc: `Balance: ₹${user?.wallet_balance || 0}`, icon: '🪙' },
+    { id: 'cash_on_pickup', label: 'Cash on Pickup', desc: 'Pay when you collect your order', icon: '💵' },
+  ];
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Checkout</h1>
+    <div className="max-w-2xl mx-auto space-y-5 animate-fade-in">
+      <div>
+        <h1 className="page-title">Checkout</h1>
+        <p className="page-subtitle">Review your order and pay</p>
+      </div>
 
       {/* Order Summary */}
       <div className="card">
-        <h3 className="font-bold text-gray-800 mb-4">Order Summary</h3>
+        <h3 className="font-bold text-white mb-4">Order Summary</h3>
         <div className="space-y-3">
           {cart.map((item) => (
             <div key={item._id} className="flex justify-between text-sm">
-              <span className="text-gray-600">
-                {item.name} × {item.quantity}
-              </span>
-              <span className="font-medium text-gray-800">₹{item.price * item.quantity}</span>
+              <span className="text-slate-400">{item.name} × {item.quantity}</span>
+              <span className="font-medium text-white">₹{item.price * item.quantity}</span>
             </div>
           ))}
-          <div className="border-t border-gray-100 pt-3 flex justify-between font-bold text-gray-900">
+          <div className="border-t border-white/10 pt-3 flex justify-between font-bold text-white">
             <span>Total</span>
-            <span>₹{cartTotal}</span>
+            <span className="gradient-text text-lg">₹{cartTotal}</span>
           </div>
         </div>
       </div>
 
       {/* Payment Method */}
       <div className="card">
-        <h3 className="font-bold text-gray-800 mb-4">Payment Method</h3>
-        <div className="space-y-3">
-          {[
-            { value: 'online', label: '💳 Pay Online (Razorpay)', desc: 'UPI, Cards, Net Banking' },
-            { value: 'cash_on_pickup', label: '💵 Cash on Pickup', desc: 'Pay when you collect' },
-            { value: 'wallet', label: `👛 Wallet (₹${user?.wallet_balance || 0})`, desc: 'Use your campus wallet' },
-          ].map((method) => (
-            <label
-              key={method.value}
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                paymentMethod === method.value
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-100 hover:border-gray-200'
+        <h3 className="font-bold text-white mb-4">Payment Method</h3>
+        <div className="space-y-2">
+          {payMethods.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setPaymentMethod(m.id)}
+              className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                paymentMethod === m.id
+                  ? 'border-orange-500/50 bg-orange-500/10'
+                  : 'border-white/10 hover:border-white/20 hover:bg-white/5'
               }`}
             >
-              <input
-                type="radio"
-                name="payment"
-                value={method.value}
-                checked={paymentMethod === method.value}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="accent-primary-500"
-              />
+              <span className="text-2xl">{m.icon}</span>
               <div>
-                <p className="font-medium text-gray-800 text-sm">{method.label}</p>
-                <p className="text-xs text-gray-400">{method.desc}</p>
+                <p className="font-semibold text-white text-sm">{m.label}</p>
+                <p className="text-slate-400 text-xs mt-0.5">{m.desc}</p>
               </div>
-            </label>
+              <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                paymentMethod === m.id ? 'border-orange-500 bg-orange-500' : 'border-white/20'
+              }`}>
+                {paymentMethod === m.id && <span className="text-white text-xs">✓</span>}
+              </div>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Special Instructions */}
       <div className="card">
-        <h3 className="font-bold text-gray-800 mb-3">Special Instructions</h3>
+        <h3 className="font-bold text-white mb-3">Special Instructions</h3>
         <textarea
-          rows={3}
-          placeholder="Any special requests? (optional)"
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
+          placeholder="Any allergies, preferences, or notes..."
+          rows={3}
           className="input resize-none"
         />
       </div>
@@ -168,16 +160,9 @@ const CheckoutPage = () => {
       <button
         onClick={handlePlaceOrder}
         disabled={loading}
-        className="btn-primary w-full text-base py-4 flex items-center justify-center gap-2"
+        className="btn-primary w-full py-4 text-base"
       >
-        {loading ? (
-          <>
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Processing...
-          </>
-        ) : (
-          `Place Order · ₹${cartTotal}`
-        )}
+        {loading ? 'Placing Order...' : `Place Order · ₹${cartTotal}`}
       </button>
     </div>
   );

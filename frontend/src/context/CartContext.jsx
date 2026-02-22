@@ -1,11 +1,42 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 const CartContext = createContext(null);
 
+const CART_STORAGE_KEY = 'campus_cravings_cart';
+
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
-  const [canteenId, setCanteenId] = useState(null);
+  const [cart, setCart] = useState(() => {
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [canteenId, setCanteenId] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`${CART_STORAGE_KEY}_canteen`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Persist cart to localStorage
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  }, [cart]);
+
+  // Persist canteen ID to localStorage
+  useEffect(() => {
+    if (canteenId) {
+      localStorage.setItem(`${CART_STORAGE_KEY}_canteen`, JSON.stringify(canteenId));
+    } else {
+      localStorage.removeItem(`${CART_STORAGE_KEY}_canteen`);
+    }
+  }, [canteenId]);
 
   const addToCart = useCallback(
     (item, itemCanteenId) => {
@@ -26,7 +57,10 @@ export const CartProvider = ({ children }) => {
       });
 
       if (!canteenId) setCanteenId(itemCanteenId);
-      toast.success(`${item.name} added to cart`);
+      toast.success(`${item.name} added to cart!`, {
+        icon: '🛒',
+        duration: 2000,
+      });
       return true;
     },
     [canteenId]
@@ -38,6 +72,7 @@ export const CartProvider = ({ children }) => {
       if (updated.length === 0) setCanteenId(null);
       return updated;
     });
+    toast.success('Item removed from cart');
   }, []);
 
   const updateQuantity = useCallback((itemId, qty) => {
@@ -53,10 +88,11 @@ export const CartProvider = ({ children }) => {
   const clearCart = useCallback(() => {
     setCart([]);
     setCanteenId(null);
+    toast.success('Cart cleared');
   }, []);
 
-  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 1), 0);
+  const cartCount = cart.reduce((sum, i) => sum + (i.quantity || 1), 0);
 
   return (
     <CartContext.Provider
