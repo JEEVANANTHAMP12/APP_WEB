@@ -73,7 +73,7 @@ const CartPage = () => {
             <span>₹{cartTotal}</span>
           </div>
           <div className="flex justify-between" style={{ color: 'var(--text-secondary)' }}>
-            <span>Platform fee</span>
+            <span>Platform fees</span>
             <span className="text-emerald-400">Free</span>
           </div>
         </div>
